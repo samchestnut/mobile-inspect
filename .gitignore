@@ -1,0 +1,10 @@
+# WebDriverAgent is cloned by setup-wda.sh, never committed
+wda/
+.wda-derived/
+
+# State files generated at runtime
+*.log
+*.pid
+
+# macOS
+.DS_Store
