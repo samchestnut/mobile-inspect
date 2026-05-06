@@ -111,7 +111,24 @@ Supported when WDA is already running and reachable at `localhost:8100`. The ski
 1. **Run Appium with a real-device session** — Appium installs/launches WDA and sets up port forwarding for you. While the session is alive, this skill reuses that same WDA endpoint.
 2. **Manual WDA launch** — `xcodebuild test -destination "id=<real-UDID>"` after signing WDA in Xcode once, plus `iproxy 8100 8100 -u <UDID>` in another terminal.
 
-The skill checks `localhost:8100/status` first; if WDA answers, it uses it (real device or simulator — doesn't care). Only if no WDA is up does it fall back to launching its own against a booted simulator.
+The skill checks `localhost:8100/status` first; if WDA answers, it reuses that endpoint (real device or simulator — doesn't care) and prints which device it's connected to so you can verify the target. Only if no WDA is up does it fall back to launching its own against a booted simulator.
+
+### Avoid the silent-sim-fallback trap
+
+If you started Appium against an iPad and Appium dies (or you stopped the run), `:8100` goes down — and the skill will helpfully (and wrongly) launch WDA on whatever sim happens to be booted. To prevent that during real-device workflows:
+
+```bash
+# Refuse to launch our own WDA — fail loudly if Appium isn't keeping :8100 alive.
+MOBILE_INSPECT_NO_LAUNCH=1 inspect.sh ios --suggest icon-bell
+
+# Or pin the target UDID when launching ourselves (skips the booted-sim auto-pick):
+MOBILE_INSPECT_TARGET_UDID=<udid> inspect.sh ios --enumerate
+
+# Use a non-default WDA port (Appium is sometimes on 8101 etc.):
+MOBILE_INSPECT_WDA_PORT=8101 inspect.sh ios --raw
+```
+
+When WDA is reused, the skill logs a one-line target hint (`device=...  iosVersion=...  hint=device|simulator`) to stderr; verify it before trusting the dump.
 
 ## Limitations (v0.3)
 
