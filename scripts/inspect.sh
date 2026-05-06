@@ -10,6 +10,7 @@ PLATFORM=""
 RAW=0
 FILTER=""
 SUGGEST=""
+ENUMERATE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -17,6 +18,7 @@ while [[ $# -gt 0 ]]; do
     --raw) RAW=1; shift ;;
     --filter) FILTER="$2"; shift 2 ;;
     --suggest) SUGGEST="$2"; shift 2 ;;
+    --enumerate) ENUMERATE=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -44,6 +46,15 @@ if [[ -n "$SUGGEST" ]]; then
   case "$PLATFORM" in
     android) bash "$SCRIPT_DIR/android-dump.sh" 1 "" | python3 "$SCRIPT_DIR/suggest-android.py" "$SUGGEST" ;;
     ios)     bash "$SCRIPT_DIR/ios-dump.sh"     1 "" | python3 "$SCRIPT_DIR/suggest-ios.py"     "$SUGGEST" ;;
+  esac
+  exit $?
+fi
+
+# --enumerate also needs raw, then groups & lists named elements with PO suggestions.
+if [[ "$ENUMERATE" == "1" ]]; then
+  case "$PLATFORM" in
+    android) bash "$SCRIPT_DIR/android-dump.sh" 1 "" | python3 "$SCRIPT_DIR/enumerate-android.py" ;;
+    ios)     bash "$SCRIPT_DIR/ios-dump.sh"     1 "" | python3 "$SCRIPT_DIR/enumerate-ios.py" ;;
   esac
   exit $?
 fi
