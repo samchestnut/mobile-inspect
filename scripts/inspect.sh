@@ -15,6 +15,7 @@ SNAPSHOT=""
 MERGE=0
 LIST_SNAPSHOTS=0
 CLEAR_SNAPSHOTS=0
+GEN_POM=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -27,6 +28,7 @@ while [[ $# -gt 0 ]]; do
     --merge) MERGE=1; shift ;;
     --snapshots) LIST_SNAPSHOTS=1; shift ;;
     --clear-snapshots) CLEAR_SNAPSHOTS=1; shift ;;
+    --gen-pom) GEN_POM=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -71,6 +73,12 @@ if [[ "$CLEAR_SNAPSHOTS" == "1" ]]; then
   rm -rf "$SNAP_BASE"
   echo "Cleared $SNAP_BASE"
   exit 0
+fi
+
+# --gen-pom is platform-agnostic: reads both ios and android snapshot dirs.
+if [[ "$GEN_POM" == "1" ]]; then
+  python3 "$SCRIPT_DIR/gen-pom.py" "$SNAP_BASE"
+  exit $?
 fi
 
 [[ -z "$PLATFORM" ]] && PLATFORM="$(detect_platform)"
