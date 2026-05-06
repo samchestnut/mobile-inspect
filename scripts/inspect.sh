@@ -11,6 +11,10 @@ RAW=0
 FILTER=""
 SUGGEST=""
 ENUMERATE=0
+SNAPSHOT=""
+MERGE=0
+LIST_SNAPSHOTS=0
+CLEAR_SNAPSHOTS=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -19,9 +23,16 @@ while [[ $# -gt 0 ]]; do
     --filter) FILTER="$2"; shift 2 ;;
     --suggest) SUGGEST="$2"; shift 2 ;;
     --enumerate) ENUMERATE=1; shift ;;
+    --snapshot) SNAPSHOT="$2"; shift 2 ;;
+    --merge) MERGE=1; shift ;;
+    --snapshots) LIST_SNAPSHOTS=1; shift ;;
+    --clear-snapshots) CLEAR_SNAPSHOTS=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
+
+SNAP_BASE="$(cd "$SCRIPT_DIR/.." && pwd)/snapshots"
+sanitize() { echo "$1" | tr '[:upper:] /' '[:lower:]__' | tr -cd 'a-z0-9_.-'; }
 
 detect_platform() {
   local has_android=0 has_ios=0
@@ -39,7 +50,58 @@ detect_platform() {
   exit 2
 }
 
+# Meta actions that don't need a live device (work on saved snapshots).
+if [[ "$LIST_SNAPSHOTS" == "1" ]]; then
+  if [[ ! -d "$SNAP_BASE" ]]; then echo "(no snapshots yet)"; exit 0; fi
+  for plat_dir in "$SNAP_BASE"/*/; do
+    [[ -d "$plat_dir" ]] || continue
+    plat="$(basename "$plat_dir")"
+    files=("$plat_dir"*.xml)
+    [[ -e "${files[0]}" ]] || continue
+    echo "$plat (${#files[@]}):"
+    for f in "${files[@]}"; do
+      sz=$(wc -c <"$f" | tr -d ' ')
+      echo "  $(basename "$f" .xml)  (${sz} bytes)"
+    done
+  done
+  exit 0
+fi
+
+if [[ "$CLEAR_SNAPSHOTS" == "1" ]]; then
+  rm -rf "$SNAP_BASE"
+  echo "Cleared $SNAP_BASE"
+  exit 0
+fi
+
 [[ -z "$PLATFORM" ]] && PLATFORM="$(detect_platform)"
+
+# --merge: analyze saved snapshots, no live device needed once dir is populated.
+if [[ "$MERGE" == "1" ]]; then
+  dir="$SNAP_BASE/$PLATFORM"
+  python3 "$SCRIPT_DIR/merge-snapshots.py" "$dir"
+  exit $?
+fi
+
+# --snapshot <name>: dump current screen and save under snapshots/<platform>/<name>.xml
+if [[ -n "$SNAPSHOT" ]]; then
+  name=$(sanitize "$SNAPSHOT")
+  dir="$SNAP_BASE/$PLATFORM"
+  mkdir -p "$dir"
+  out="$dir/$name.xml"
+  case "$PLATFORM" in
+    android) bash "$SCRIPT_DIR/android-dump.sh" 1 "" >"$out" ;;
+    ios)     bash "$SCRIPT_DIR/ios-dump.sh"     1 "" >"$out" ;;
+  esac
+  if [[ ! -s "$out" ]]; then
+    echo "Failed: dump was empty (device idle? app foreground?)" >&2
+    rm -f "$out"
+    exit 2
+  fi
+  bytes=$(wc -c <"$out" | tr -d ' ')
+  echo "Saved snapshot: $out ($bytes bytes)"
+  echo "Run '--merge' after collecting snapshots from multiple pages."
+  exit 0
+fi
 
 # When --suggest is set, force --raw so we can pipe the dump into the suggester.
 if [[ -n "$SUGGEST" ]]; then

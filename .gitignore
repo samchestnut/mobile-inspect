@@ -6,5 +6,8 @@ wda/
 *.log
 *.pid
 
+# User snapshots (per-app, never commit)
+snapshots/
+
 # macOS
 .DS_Store
