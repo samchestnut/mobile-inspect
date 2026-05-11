@@ -159,7 +159,7 @@ def main():
     base_android = {k for k, ps in android_presence.items() if len(ps) >= base_threshold}
 
     # Try to pair iOS name with Android key by exact-match first.
-    # (Apps that already follow the same convention on both platforms — like App —
+    # (Apps that already follow the same accessibility-id convention on both platforms
     #  will pair cleanly. Otherwise the iOS-only / android-only branches handle it.)
 
     # === Emit basePage.ts additions ===
