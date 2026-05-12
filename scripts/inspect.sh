@@ -16,6 +16,7 @@ MERGE=0
 LIST_SNAPSHOTS=0
 CLEAR_SNAPSHOTS=0
 GEN_POM=0
+EXPLORE_ZONE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -29,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     --snapshots) LIST_SNAPSHOTS=1; shift ;;
     --clear-snapshots) CLEAR_SNAPSHOTS=1; shift ;;
     --gen-pom) GEN_POM=1; shift ;;
+    --explore-zone) EXPLORE_ZONE="$2"; shift 2 ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -125,6 +127,16 @@ if [[ "$ENUMERATE" == "1" ]]; then
   case "$PLATFORM" in
     android) bash "$SCRIPT_DIR/android-dump.sh" 1 "" | python3 "$SCRIPT_DIR/enumerate-android.py" ;;
     ios)     bash "$SCRIPT_DIR/ios-dump.sh"     1 "" | python3 "$SCRIPT_DIR/enumerate-ios.py" ;;
+  esac
+  exit $?
+fi
+
+# --explore-zone <top|bottom|middle>: tap each named element in zone, dump,
+# diff vs home, recover. Android only for now.
+if [[ -n "$EXPLORE_ZONE" ]]; then
+  case "$PLATFORM" in
+    android) python3 "$SCRIPT_DIR/explore-zone-android.py" "$EXPLORE_ZONE" ;;
+    ios)     echo "--explore-zone not yet implemented for iOS" >&2; exit 2 ;;
   esac
   exit $?
 fi

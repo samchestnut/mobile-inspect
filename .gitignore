@@ -9,5 +9,8 @@ wda/
 # User snapshots (per-app, never commit)
 snapshots/
 
+# Explore-zone outputs (per-run, never commit)
+explore/
+
 # macOS
 .DS_Store
