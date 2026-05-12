@@ -59,6 +59,12 @@ Flags:
 - `--filter <substring>` → only show subtrees whose tag, name, label, or value contains the substring (case-insensitive)
 - `--explore-zone <top|bottom|middle>` → **Android only.** Auto-tap each named element in the chosen screen zone, dump the resulting screen, diff vs the starting screen, then recover (back/relaunch) before the next tap. Skips child-duplicates and pure labels. Outputs `explore/<timestamp>-<zone>/` with one XML per element + `_index.md`. Safety: only taps within the picked zone — does NOT recurse into newly opened screens.
 
+> ⚠️ **Safety caveats for `--explore-zone`** — read before running:
+> 1. **Use a test account, never a production one.** The skill taps real elements. On a logged-in account, taps can trigger destructive actions (Like, Comment, Send, Delete, Pay, Subscribe). The `top` and `bottom` zones are usually navigation icons (safe). The `middle` zone is content/forms — high risk of triggering side effects. Prefer `top`/`bottom`. Use `middle` only on screens you've manually verified.
+> 2. **Recovery may force-stop the app.** When BACK doesn't return to the start screen, the skill runs `am force-stop <pkg>` and relaunches. Any unsaved in-app state (half-filled form, draft message) is lost.
+> 3. **Dumps may contain PII.** Saved XML files reflect what's on screen — emails, names, search history, message previews. The `explore/` and `snapshots/` directories are gitignored by default, but treat them as sensitive. Don't share, don't commit, prune periodically.
+> 4. **WDA listens on localhost only by default.** Don't bind it to `0.0.0.0` — anyone on your LAN could control the device. After a session: `kill $(cat /tmp/mobile-inspect-wda.pid)`.
+
 ## Output format
 
 Indented text tree. Each node:
