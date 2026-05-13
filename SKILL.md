@@ -57,6 +57,11 @@ Flags:
 - no platform arg → auto-detect (errors if both an Android device and an iOS sim are connected)
 - `--raw` → print the unprocessed XML (skip the compact formatter)
 - `--filter <substring>` → only show subtrees whose tag, name, label, or value contains the substring (case-insensitive)
+- `--gen-pom [--template <name>]` → Generate Page Object TypeScript from saved snapshots. Templates select the code style:
+  - `raw` (default) — `driver.isIOS ? $('~ios') : $('~android')` ternary, no helper imports
+  - `cross-platform` — uses `CrossPlatformSelectors.getPlatformAccessibility(ios, android)`
+  - `cross-platform-registry` — splits each page into `pages/<x>.page.ts` + `selectors/registries/<x>.ts`
+  - Run `inspect.sh --list-templates` to see all options.
 - `--explore-zone <top|bottom|middle>` → **Android only.** Auto-tap each named element in the chosen screen zone, dump the resulting screen, diff vs the starting screen, then recover (back/relaunch) before the next tap. Skips child-duplicates and pure labels. Outputs `explore/<timestamp>-<zone>/` with one XML per element + `_index.md`. Safety: only taps within the picked zone — does NOT recurse into newly opened screens.
 
 > ⚠️ **Safety caveats for `--explore-zone`** — read before running:

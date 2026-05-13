@@ -17,6 +17,8 @@ LIST_SNAPSHOTS=0
 CLEAR_SNAPSHOTS=0
 GEN_POM=0
 EXPLORE_ZONE=""
+TEMPLATE=""
+LIST_TEMPLATES=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -31,6 +33,8 @@ while [[ $# -gt 0 ]]; do
     --clear-snapshots) CLEAR_SNAPSHOTS=1; shift ;;
     --gen-pom) GEN_POM=1; shift ;;
     --explore-zone) EXPLORE_ZONE="$2"; shift 2 ;;
+    --template) TEMPLATE="$2"; shift 2 ;;
+    --list-templates) LIST_TEMPLATES=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -77,9 +81,17 @@ if [[ "$CLEAR_SNAPSHOTS" == "1" ]]; then
   exit 0
 fi
 
+# --list-templates is meta — no device, no snapshots needed.
+if [[ "$LIST_TEMPLATES" == "1" ]]; then
+  python3 "$SCRIPT_DIR/gen-pom.py" --list-templates
+  exit $?
+fi
+
 # --gen-pom is platform-agnostic: reads both ios and android snapshot dirs.
 if [[ "$GEN_POM" == "1" ]]; then
-  python3 "$SCRIPT_DIR/gen-pom.py" "$SNAP_BASE"
+  args=("$SNAP_BASE")
+  [[ -n "$TEMPLATE" ]] && args+=(--template "$TEMPLATE")
+  python3 "$SCRIPT_DIR/gen-pom.py" "${args[@]}"
   exit $?
 fi
 
