@@ -63,6 +63,12 @@ Flags:
   - `cross-platform-registry` — splits each page into `pages/<x>.page.ts` + `selectors/registries/<x>.ts`
   - Run `inspect.sh --list-templates` to see all options.
 - `--explore-zone <top|bottom|middle>` → **Android only.** Auto-tap each named element in the chosen screen zone, dump the resulting screen, diff vs the starting screen, then recover (back/relaunch) before the next tap. Skips child-duplicates and pure labels. Outputs `explore/<timestamp>-<zone>/` with one XML per element + `_index.md`. Safety: only taps within the picked zone — does NOT recurse into newly opened screens.
+- `--crawl-app` → **Android only.** Full app crawl: snapshot the current screen, detect bottom-nav tabs, then for each tab also explore top-bar elements. Aggregates everything into `snapshots/android/` so a single `--merge` + `--gen-pom` can build the whole Page Object library. Safety:
+  - **Guest mode by default.** Skill never logs in or fills forms.
+  - Skips elements whose name matches danger keywords (Create / Upload / Camera / Record / Pay / Delete / Sign out / Subscribe / Buy).
+  - If a tap navigates outside the target package, BACK and skip — never follows external apps.
+  - Does NOT recurse below the top-bar level (one-screen depth from each tab).
+  - Relaunches the app between tabs for clean state.
 
 > ⚠️ **Safety caveats for `--explore-zone`** — read before running:
 > 1. **Use a test account, never a production one.** The skill taps real elements. On a logged-in account, taps can trigger destructive actions (Like, Comment, Send, Delete, Pay, Subscribe). The `top` and `bottom` zones are usually navigation icons (safe). The `middle` zone is content/forms — high risk of triggering side effects. Prefer `top`/`bottom`. Use `middle` only on screens you've manually verified.

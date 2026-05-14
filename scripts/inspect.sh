@@ -19,6 +19,7 @@ GEN_POM=0
 EXPLORE_ZONE=""
 TEMPLATE=""
 LIST_TEMPLATES=0
+CRAWL_APP=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,6 +36,7 @@ while [[ $# -gt 0 ]]; do
     --explore-zone) EXPLORE_ZONE="$2"; shift 2 ;;
     --template) TEMPLATE="$2"; shift 2 ;;
     --list-templates) LIST_TEMPLATES=1; shift ;;
+    --crawl-app) CRAWL_APP=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -149,6 +151,16 @@ if [[ -n "$EXPLORE_ZONE" ]]; then
   case "$PLATFORM" in
     android) python3 "$SCRIPT_DIR/explore-zone-android.py" "$EXPLORE_ZONE" ;;
     ios)     echo "--explore-zone not yet implemented for iOS" >&2; exit 2 ;;
+  esac
+  exit $?
+fi
+
+# --crawl-app: auto-snapshot home + every bottom tab + top-bar sub-screens.
+# Aggregates into snapshots/android/ for downstream --merge / --gen-pom.
+if [[ "$CRAWL_APP" == "1" ]]; then
+  case "$PLATFORM" in
+    android) python3 "$SCRIPT_DIR/crawl-app-android.py" ;;
+    ios)     echo "--crawl-app not yet implemented for iOS" >&2; exit 2 ;;
   esac
   exit $?
 fi
