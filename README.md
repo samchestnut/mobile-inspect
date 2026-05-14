@@ -8,6 +8,11 @@ A Claude Code skill that inspects the live UI element tree of any Android or iOS
 - **Filter** the tree by keyword to scope down before reading
 - **Suggest** ranked selector candidates for any element — accessibility id, predicate, class chain, indexed xpath, etc. — with reasoning about stability, runtime speed, and locale safety
 - **Detect** duplicate identifiers in the dump and automatically fall back to safer alternatives (label, indexed xpath, parent-scoped UiSelector)
+- **Enumerate** every named/tappable element on screen with one-shot Page Object suggestions
+- **Snapshot + merge** multiple screens to see which elements are shared (BasePage candidates) vs page-specific
+- **Auto-explore zones** (top app bar / bottom nav) — tap each element, dump the resulting screen, recover, repeat
+- **Crawl the whole app** in one command — auto-snapshot every bottom-tab plus its top-bar sub-screens (`--crawl-app`)
+- **Generate Page Objects** in TypeScript with a choice of templates (raw / cross-platform / cross-platform-registry) and write them straight into your project (`--target /path/to/project`)
 
 Backends:
 
@@ -65,9 +70,50 @@ The skill is invoked by Claude when you ask things like *"inspect this screen"*,
 # Suggest the best selector for an element matching "icon-more-vertical"
 ~/.claude/skills/mobile-inspect/scripts/inspect.sh ios --suggest icon-more-vertical
 
+# List every named/tappable element with Page Object hints
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --enumerate
+
 # Raw XML / JSON
 ~/.claude/skills/mobile-inspect/scripts/inspect.sh android --raw
 ```
+
+### Snapshot multiple screens, then build a Page Object library
+
+```bash
+# Manually: navigate to each screen, snapshot one at a time
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --snapshot home
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --snapshot videoDetail
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --snapshot library
+
+# Or auto: crawl every bottom-tab + top-bar sub-screen of the app at once
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --crawl-app
+
+# See which elements are shared vs page-specific
+~/.claude/skills/mobile-inspect/scripts/inspect.sh --merge
+
+# Pick a code style and (optionally) write straight into your project
+~/.claude/skills/mobile-inspect/scripts/inspect.sh --list-templates
+~/.claude/skills/mobile-inspect/scripts/inspect.sh android --gen-pom \
+    --template cross-platform-registry \
+    --target /path/to/your/wdio-project
+# Add --force to overwrite existing files.
+```
+
+#### Templates available for `--gen-pom`
+
+| Template | Output style |
+|----------|-------------|
+| `raw` (default) | `driver.isIOS ? $('~ios') : $('~android')` ternary, no helper imports |
+| `cross-platform` | `CrossPlatformSelectors.getPlatformAccessibility(ios, android)` one-liner |
+| `cross-platform-registry` | Splits each page into `pages/<x>.page.ts` + `selectors/registries/<x>.ts` |
+
+#### `--crawl-app` safety scope
+
+- **Guest mode by default** — never logs in, never fills forms.
+- Skips any element whose name contains danger keywords (`Create`, `Upload`, `Camera`, `Record`, `Pay`, `Delete`, `Sign out`, `Subscribe`, `Buy`, …).
+- If a tap navigates outside the target package, presses BACK and skips — never follows external apps.
+- Does **not** recurse below the top-bar level (single-level depth from each tab).
+- Relaunches the app between tabs for clean state.
 
 ### Example output (`--suggest`)
 
