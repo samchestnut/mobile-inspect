@@ -192,10 +192,8 @@ TEMPLATES = {
 
 # --- Renderers (driven by template) ------------------------------------------
 def render_raw(pages, base_keys, ios_presence, android_presence):
-    print("// =============================================================")
-    print("// pages/base.page.ts — suggested additions")
-    print(f"// Elements seen on ≥{BASE_THRESHOLD} of {len(pages)} pages")
-    print("// =============================================================\n")
+    print(f"// === FILE: pages/base.page.ts ===\n")
+    print(f"// Elements seen on ≥{BASE_THRESHOLD} of {len(pages)} pages\n")
     print("export class BasePage {")
     for k in base_keys:
         ios_name = k if k in {n for n, ps in ios_presence.items() if len(ps) >= BASE_THRESHOLD} else ""
@@ -212,9 +210,7 @@ def render_raw(pages, base_keys, ios_presence, android_presence):
         if not ios_specific and not and_specific:
             continue
         cls = class_name(page)
-        print("// =============================================================")
-        print(f"// pages/{page}.page.ts — suggested skeleton")
-        print("// =============================================================\n")
+        print(f"// === FILE: pages/{page}.page.ts ===\n")
         print(f"export class {cls} extends BasePage {{")
         emitted = set()
         for n in ios_specific:
@@ -240,9 +236,7 @@ def render_cross_platform(pages, base_keys, ios_presence, android_presence):
     base_ios_set = {n for n, ps in ios_presence.items() if len(ps) >= BASE_THRESHOLD}
     base_and_set = {n for n, ps in android_presence.items() if len(ps) >= BASE_THRESHOLD}
 
-    print("// =============================================================")
-    print("// pages/base.page.ts")
-    print("// =============================================================\n")
+    print(f"// === FILE: pages/base.page.ts ===\n")
     print(HELPER_IMPORT)
     print()
     print("export class BasePage {")
@@ -261,9 +255,7 @@ def render_cross_platform(pages, base_keys, ios_presence, android_presence):
         if not ios_specific and not and_specific:
             continue
         cls = class_name(page)
-        print("// =============================================================")
-        print(f"// pages/{page}.page.ts")
-        print("// =============================================================\n")
+        print(f"// === FILE: pages/{page}.page.ts ===\n")
         print(HELPER_IMPORT)
         print('import { BasePage } from "@pages/base.page";')
         print()
@@ -378,11 +370,88 @@ def _lookup_android(pages, and_key):
 
 
 # --- Main --------------------------------------------------------------------
+FILE_MARKER_RE = re.compile(r"^//\s*===\s*FILE:\s*(.+?)\s*===\s*$")
+
+
+def split_into_files(blob: str):
+    """Parse rendered blob into [(rel_path, content), ...] using FILE markers."""
+    files = []
+    cur_path = None
+    cur_lines = []
+    for line in blob.splitlines():
+        m = FILE_MARKER_RE.match(line)
+        if m:
+            if cur_path is not None:
+                files.append((cur_path, "\n".join(cur_lines).strip() + "\n"))
+            cur_path = m.group(1).strip()
+            cur_lines = []
+        elif cur_path is not None:
+            cur_lines.append(line)
+    if cur_path is not None and cur_lines:
+        files.append((cur_path, "\n".join(cur_lines).strip() + "\n"))
+    return files
+
+
+def write_to_target(blob: str, target_dir: Path, force: bool):
+    """Write each FILE-marked section into target_dir/<rel_path>.
+
+    Refuses to overwrite existing files unless --force. Refuses paths that
+    escape target_dir.
+    """
+    target = target_dir.resolve()
+    if not target.is_dir():
+        print(f"Target dir not found: {target}", file=sys.stderr)
+        sys.exit(2)
+
+    files = split_into_files(blob)
+    if not files:
+        print("No FILE markers found in output — nothing to write.", file=sys.stderr)
+        sys.exit(2)
+
+    written, skipped, conflict = [], [], []
+    for rel, content in files:
+        # Path traversal guard
+        out = (target / rel).resolve()
+        try:
+            out.relative_to(target)
+        except ValueError:
+            print(f"Refusing path outside target: {rel}", file=sys.stderr)
+            skipped.append(rel)
+            continue
+
+        if out.exists() and not force:
+            conflict.append(rel)
+            continue
+
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(content)
+        written.append(rel)
+
+    print(f"\n[--target] {target}", file=sys.stderr)
+    if written:
+        print(f"  ✓ written ({len(written)}):", file=sys.stderr)
+        for r in written:
+            print(f"      {r}", file=sys.stderr)
+    if conflict:
+        print(f"  ⚠ already exists ({len(conflict)}) — use --force to overwrite:",
+              file=sys.stderr)
+        for r in conflict:
+            print(f"      {r}", file=sys.stderr)
+    if skipped:
+        print(f"  ✗ skipped ({len(skipped)}):", file=sys.stderr)
+        for r in skipped:
+            print(f"      {r}", file=sys.stderr)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("base", nargs="?", default="", help="snapshots base dir")
     ap.add_argument("--template", default="raw", choices=list(TEMPLATES.keys()))
     ap.add_argument("--list-templates", action="store_true")
+    ap.add_argument("--target", default="",
+                    help="write output to this project dir (parses FILE markers)")
+    ap.add_argument("--force", action="store_true",
+                    help="overwrite existing files when --target is set")
     args = ap.parse_args()
 
     if args.list_templates:
@@ -419,14 +488,34 @@ def main():
         "cross-platform": render_cross_platform,
         "cross-platform-registry": render_cross_platform_registry,
     }
+
+    # Capture stdout into a string when --target is set, so we can split + write.
+    if args.target:
+        import io
+        buf = io.StringIO()
+        sys_stdout_orig = sys.stdout
+        sys.stdout = buf
+        try:
+            renderers[args.template](pages, base_keys, ios_presence, android_presence)
+        finally:
+            sys.stdout = sys_stdout_orig
+        write_to_target(buf.getvalue(), Path(args.target), args.force)
+        print(f"\nTemplate: {args.template} | Pages: {len(pages)} | basePage candidates: {len(base_keys)}",
+              file=sys.stderr)
+        return
+
     renderers[args.template](pages, base_keys, ios_presence, android_presence)
 
     print("// =============================================================")
     print(f"// Done. Template: {args.template} | Pages: {len(pages)} ({', '.join(sorted(pages.keys()))})")
     print(f"// basePage candidates: {len(base_keys)}")
     print("// Tip: run `--merge` first to sanity-check the cross-page split.")
+    print("// Tip: pass --target /path/to/project to write files directly.")
     print("// =============================================================")
 
+
+# Path needs to be importable
+from pathlib import Path
 
 if __name__ == "__main__":
     main()

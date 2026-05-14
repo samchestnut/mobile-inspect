@@ -20,6 +20,8 @@ EXPLORE_ZONE=""
 TEMPLATE=""
 LIST_TEMPLATES=0
 CRAWL_APP=0
+TARGET=""
+FORCE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -37,6 +39,8 @@ while [[ $# -gt 0 ]]; do
     --template) TEMPLATE="$2"; shift 2 ;;
     --list-templates) LIST_TEMPLATES=1; shift ;;
     --crawl-app) CRAWL_APP=1; shift ;;
+    --target) TARGET="$2"; shift 2 ;;
+    --force) FORCE=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
@@ -93,6 +97,8 @@ fi
 if [[ "$GEN_POM" == "1" ]]; then
   args=("$SNAP_BASE")
   [[ -n "$TEMPLATE" ]] && args+=(--template "$TEMPLATE")
+  [[ -n "$TARGET" ]] && args+=(--target "$TARGET")
+  [[ "$FORCE" == "1" ]] && args+=(--force)
   python3 "$SCRIPT_DIR/gen-pom.py" "${args[@]}"
   exit $?
 fi
