@@ -1,6 +1,6 @@
 ---
 name: mobile-inspect
-description: "Inspect the live UI element tree of an Android or iOS app on a connected device or simulator. Dumps the on-screen view hierarchy and returns a compact, readable tree (resource-id, accessibility-id, name, label, frame) so Claude can suggest selectors for Appium/XCUITest/UIAutomator tests. Use when the user asks to inspect a screen, dump page source, find a selector, see the DOM/view hierarchy, or debug why an element can't be found. Supports Android (real device + emulator via adb) and iOS Simulator (via WebDriverAgent / XCTest)."
+description: "Inspect Android/iOS app UI on a connected device, find Appium selectors, and generate a full Page Object library. Use this skill whenever the user mentions: inspecting a screen, dumping page source / UI tree, finding a selector for any button/element, debugging 'element not found' / NoSuchElement errors, listing tappable elements, snapshotting screens, generating Page Objects, crawling the whole app automatically, or writing test code into a project. Vietnamese trigger phrases: 'tìm selector', 'chụp UI', 'liệt kê element', 'khám phá app', 'sinh page object', 'crawl app', 'Appium không thấy element'. Trigger even if the user doesn't mention 'mobile-inspect' explicitly — apply whenever they're working with mobile UI selectors, Appium / XCUITest / UIAutomator tests, or building a Page Object library. Backends: Android via adb, iOS Simulator via WebDriverAgent."
 license: MIT
 metadata:
   author: khanhnguyen
