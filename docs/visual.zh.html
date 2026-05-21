@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>mobile-inspect — 可视化总览</title>
+<script src="./mermaid.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans","Apple SD Gothic Neo","Segoe UI",sans-serif;
+       max-width:1100px;margin:40px auto;padding:0 24px;line-height:1.7;color:#24292e;font-size:15px;background:#fafbfc}
+  h1,h2,h3{border-bottom:1px solid #eaecef;padding-bottom:.3em;margin-top:1.8em;font-weight:600}
+  h1{font-size:2em;border:0} h2{font-size:1.4em} h3{font-size:1.15em;border:0;margin-top:0}
+  code{background:#f6f8fa;padding:2px 6px;border-radius:3px;font-size:.88em;font-family:ui-monospace,Menlo,monospace}
+  pre{background:#0d1117;color:#c9d1d9;padding:14px;border-radius:6px;overflow:auto}
+  pre code{background:none;padding:0;color:inherit}
+  table{border-collapse:collapse;margin:16px 0;width:100%;background:#fff;font-size:.92em}
+  th,td{border:1px solid #dfe2e5;padding:8px 12px;text-align:left;vertical-align:top}
+  th{background:#f6f8fa;font-weight:600}
+  .card{background:#fff;border:1px solid #e1e4e8;border-radius:8px;padding:18px 24px;margin:18px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .mermaid{background:#fff;padding:16px;border-radius:6px;border:1px solid #eaecef;text-align:center}
+  .warn{background:#fff8c5;border:2px solid #d4a72c;border-radius:8px;padding:18px 24px;margin:24px 0}
+  .warn h3{border:0;margin:0 0 12px;color:#7d4e00}
+  .warn ul{margin:8px 0;padding-left:22px;line-height:1.8}
+  .warn li{margin:6px 0}
+  .lang-switch{position:fixed;top:14px;right:18px;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:6px 10px;font-size:.85em;color:#24292e;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<select class="lang-switch" onchange="if(this.value)location.href=this.value">
+  <option value="" disabled>🌐 Language</option>
+  <option value="visual.vi.html">🇻🇳 Tiếng Việt</option>
+  <option value="visual.en.html">🇬🇧 English</option>
+  <option value="visual.zh.html" selected>🇨🇳 简体中文</option>
+  <option value="visual.ja.html">🇯🇵 日本語</option>
+  <option value="visual.ko.html">🇰🇷 한국어</option>
+</select>
+
+<h1>📱 mobile-inspect — 可视化总览</h1>
+<p>抓取 Android/iOS 应用实时 UI 树,让 Claude 帮你找 Appium 选择器、自动爬取整个应用、直接生成 Page Object。每个截屏页面产出 3 个文件:<code>.xml</code>(树)、<code>.png</code>(截图)、<code>.elements.md</code>(元素表)。</p>
+
+<h2>1. 这个技能做什么?</h2>
+<div class="card"><div class="mermaid">flowchart LR
+  A[👤 User] --> B[🤖 Claude]
+  B --> C[inspect.sh]
+  C -->|Android| D[adb shell<br/>uiautomator dump<br/>+ screencap]
+  C -->|iOS| E[WebDriverAgent<br/>:8100]
+  D --> F[.xml + .png +<br/>.elements.md]
+  E --> F
+  F --> G[Selector suggest<br/>+ POM gen]
+  G --> B
+  style A fill:#e7f3ff
+  style F fill:#fff8c5
+  style G fill:#dafbe1</div></div>
+
+<h2>2. 什么时候用?</h2>
+<div>
+  <div class="card">
+    <h3>🔍 场景1 — 找某个具体元素的名字</h3>
+    <p><b>情况:</b> 在写 '点击 Like' 但不知道 Like 元素叫什么。</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:20px;justify-content:center;flex-wrap:wrap">
+<div style="display:inline-flex;flex-direction:column;align-items:center;gap:6px"><svg width="180" height="300" viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="5" width="170" height="290" rx="20" fill="#fff" stroke="#24292e" stroke-width="2.5"/>
+    <rect x="75" y="10" width="30" height="4" rx="2" fill="#24292e"/>
+    <rect x="20" y="30" width="140" height="40" fill="#f0f0f0"/>
+    <text x="90" y="55" text-anchor="middle" font-size="11" fill="#666">App Top Bar</text>
+    <rect x="40" y="160" width="100" height="36" fill="#ffe0e0" stroke="#cf222e" stroke-width="2.5"/>
+        <text x="90" y="183" text-anchor="middle" font-size="13" font-weight="600" fill="#cf222e">Like</text>
+    <rect x="20" y="250" width="140" height="35" fill="#e8e8e8"/>
+    <text x="90" y="272" text-anchor="middle" font-size="10" fill="#666">Bottom Tabs</text>
+    </svg><div style="font-size:11px;color:#586069">App on emulator</div></div>
+<div style="font-size:30px">→</div>
+<div style="background:#e7f3ff;border:1px solid #0366d6;border-radius:14px;padding:10px 16px;max-width:200px">
+  <div style="font-size:11px;color:#586069">You ask Claude:</div>
+  <div style="font-family:ui-monospace,Menlo,monospace;font-size:13px">find selector for Like</div>
+</div>
+<div style="font-size:30px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069;margin-bottom:6px">✅ Skill returns:</div>
+  <code style="font-size:14px;font-weight:600">~LikeButton</code>
+</div>
+</div></div>
+    <p><b>你对 Claude 说:</b> <code>"找 Like 按钮的 selector"</code></p>
+    <p><b>技能做:</b> dump 当前 UI → 返回 <code>~LikeButton</code> 或 <code>id/like_btn</code> 让你粘到测试里。</p>
+  </div>
+  <div class="card">
+    <h3>🐛 场景2 — 测试报 '找不到元素'</h3>
+    <p><b>情况:</b> Appium 抛 <code>NoSuchElement</code> 但按钮明明能看到。</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">❌ Test code:</div>
+  <code style="font-size:13px;display:block">$("~SaveButton")</code>
+  <div style="color:#cf222e;font-size:11px">→ NoSuchElement</div>
+</div>
+<div style="font-size:24px">🔍</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">Skill finds:</div>
+  <code style="font-size:13px">name="<b>SaveBtn</b>"</code>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">✅ Fixed:</div>
+  <code style="font-size:13px">$("~SaveBtn")</code>
+</div>
+</div></div>
+    <p><b>你对 Claude 说:</b> <code>"inspect 屏幕,为啥 Appium 找不到 SaveButton?"</code></p>
+    <p><b>技能做:</b> dump UI,指出元素真实名字(比如其实叫 <code>SaveBtn</code>)或被遮罩盖住。</p>
+  </div>
+  <div class="card">
+    <h3>🗺️ 场景3 — 一次性爬完整个应用</h3>
+    <p><b>情况:</b> 刚加入项目,想要 Page Object 库,不想手动访问每个 tab。</p>
+    <div style="margin:12px 0"><div style="text-align:center">
+<div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 1</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 2</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 3</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 4</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 5</text>
+</svg>
+</div>
+<div style="font-size:24px;margin:6px 0">⬇️</div>
+<div style="display:inline-block;background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:14px 22px;font-family:ui-monospace,Menlo,monospace;font-size:12px;text-align:left;line-height:1.7">
+  📁 snapshots/android/<br>
+  &nbsp;&nbsp;📄 home.xml + home.png + home.elements.md<br>
+  &nbsp;&nbsp;📄 shorts.xml + shorts.png + shorts.elements.md<br>
+  &nbsp;&nbsp;📄 library.xml + library.png + library.elements.md<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20 pages × 3 files each</span>
+</div>
+</div></div>
+    <p><b>你对 Claude 说:</b> <code>"在模拟器上爬整个应用"</code></p>
+    <p><b>技能做:</b> 自动点击每个底部 tab + 顶部栏图标,每个页面输出 3 个文件(<code>.xml</code> + <code>.png</code> + <code>.elements.md</code>)。约 3-5 分钟。</p>
+  </div>
+  <div class="card">
+    <h3>📦 场景4 — 直接将 Page Object 生成到项目</h3>
+    <p><b>情况:</b> 已有 20+ 个 XML 文件,想要可直接粘贴的 TypeScript 落地到 WDIO 项目。</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 snapshots/android/<br>
+  📄 home.xml<br>
+  📄 shorts.xml<br>
+  📄 library.xml<br>
+  <span style="color:#586069">…20 XML</span>
+</div>
+<div style="font-size:30px">→</div>
+<div style="text-align:center">
+  <div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:8px 14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600">
+    --gen-pom --target /path
+  </div>
+  <div style="font-size:24px;margin:6px 0">⬇️</div>
+</div>
+<div style="background:#fff;border:1px solid #1a7f37;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 my-wdio-project/<br>
+  &nbsp;&nbsp;📁 pages/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.page.ts <span style="color:#1a7f37">← shared</span><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 home.page.ts<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 shorts.page.ts<br>
+  &nbsp;&nbsp;📁 selectors/registries/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.ts<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20+ files</span>
+</div>
+</div></div>
+    <p><b>你对 Claude 说:</b> <code>"生成 POM,写入 /Users/me/Code/my-project"</code></p>
+    <p><b>技能做:</b> 读 XML,把出现在 ≥2 个页面的元素归入 <code>BasePage</code>,每页一个文件写入项目(不带 <code>--force</code> 不覆盖)。</p>
+  </div>
+</div>
+
+<h2>3. 每页输出 — 3 个并行文件</h2>
+<div class="card">
+<p>每次快照(或 <code>--crawl-app</code> 抓的每个页面)都写出<strong>3 个同名文件</strong>:</p>
+<ul style="line-height:2">
+  <li><strong><code><name>.xml</code></strong> — UI 树数据(<code>--gen-pom</code> 的输入)。</li>
+  <li><strong><code><name>.png</code></strong> — 页面真实截图。事后回顾视觉上下文,或与 XML 对照。</li>
+  <li><strong><code><name>.elements.md</code></strong> — 所有命名元素的 markdown 表:<code>Name | Type | Bounds | Tap</code> — 不解析 XML 也能快速读。</li>
+</ul>
+<p style="font-size:.92em;color:#586069">如果只要 XML,用 <code>MOBILE_INSPECT_NO_EXTRAS=1</code> 跳过另两个文件。</p>
+</div>
+
+<h2>4. 速查表</h2>
+<table>
+<tr><th>你对 Claude 说</th><th>技能执行</th><th>输出</th></tr>
+<tr><td>"inspect screen"</td><td><code>inspect.sh android</code></td><td>Full element tree</td></tr>
+<tr><td>"find selector for X"</td><td><code>--suggest "X"</code></td><td>Best selector (id > desc > text > xpath)</td></tr>
+<tr><td>"list elements"</td><td><code>--enumerate</code></td><td>All named elements + Page Object hints</td></tr>
+<tr><td>"snapshot Home"</td><td><code>--snapshot home</code></td><td>Save .xml + .png + .elements.md</td></tr>
+<tr><td>"crawl whole app"</td><td><code>--crawl-app</code></td><td>Auto-snapshot every bottom-tab + sub-screen</td></tr>
+<tr><td>"merge snapshots"</td><td><code>--merge</code></td><td>Cross-page element analysis</td></tr>
+<tr><td>"list templates"</td><td><code>--list-templates</code></td><td>raw / cross-platform / cross-platform-registry</td></tr>
+<tr><td>"gen POM, write to /path"</td><td><code>--gen-pom --template ... --target /path</code></td><td>Write Page Objects straight to project</td></tr>
+<tr><td>"explore zone"</td><td><code>--explore-zone top|bottom|middle</code></td><td>Auto-tap each elem in zone</td></tr>
+</table>
+
+<h2>5. 完整工作流 — 构建 Page Object 库</h2>
+<div class="card">
+<p>用 4 条命令为整个应用构建 Page Object 库:</p>
+<ol style="line-height:2">
+  <li>1️⃣ <strong>打开 app,停在 Home</strong> — 游客模式</li>
+  <li>2️⃣ <strong>自动爬取</strong> — <code>inspect.sh android --crawl-app</code>(约 3-5 分钟)</li>
+  <li>3️⃣ <strong>选模板</strong> — <code>inspect.sh --list-templates</code></li>
+  <li>4️⃣ <strong>生成代码 + 写入项目</strong> — <code>inspect.sh android --gen-pom --template cross-platform-registry --target /path/to/wdio-project</code></li>
+</ol>
+<p>结果:<code>pages/*.page.ts</code> + <code>selectors/registries/*.ts</code> 可直接粘贴,共享元素自动归入 <code>BasePage</code>。</p>
+<div class="mermaid">flowchart TD
+  A[1️⃣ App on Home] --> B[2️⃣ --crawl-app<br/>~3-5 min]
+  B --> C[snapshots/android/<br/>20× .xml + .png + .elements.md]
+  C --> D[3️⃣ --list-templates]
+  D --> E[4️⃣ --gen-pom<br/>--template ...<br/>--target /path]
+  E --> F[💾 pages/*.page.ts<br/>selectors/registries/*.ts]
+  style A fill:#fff3cd
+  style B fill:#dafbe1
+  style E fill:#dafbe1
+  style F fill:#e7f3ff</div>
+</div>
+
+<div class="warn">
+  <h3>⚠️ 安全</h3>
+  <ul>
+    <li><strong>用测试账号,绝对不要用生产账号。</strong> 技能真实点击。已登录账号上 → 可能误触 Like/Comment/Send/Delete/Pay。<code>--crawl-app</code> 默认游客模式 + 跳过危险关键词。</li>
+    <li><strong>XML + PNG 可能包含 PII。</strong> 邮箱、姓名、搜索历史、消息预览。<code>snapshots/</code> 已 gitignore,但仍按敏感数据对待。</li>
+  </ul>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true, theme:'default', flowchart:{curve:'basis'}});
+</script>
+</body>
+</html>

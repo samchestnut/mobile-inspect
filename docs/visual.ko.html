@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>mobile-inspect — 시각 개요</title>
+<script src="./mermaid.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans","Apple SD Gothic Neo","Segoe UI",sans-serif;
+       max-width:1100px;margin:40px auto;padding:0 24px;line-height:1.7;color:#24292e;font-size:15px;background:#fafbfc}
+  h1,h2,h3{border-bottom:1px solid #eaecef;padding-bottom:.3em;margin-top:1.8em;font-weight:600}
+  h1{font-size:2em;border:0} h2{font-size:1.4em} h3{font-size:1.15em;border:0;margin-top:0}
+  code{background:#f6f8fa;padding:2px 6px;border-radius:3px;font-size:.88em;font-family:ui-monospace,Menlo,monospace}
+  pre{background:#0d1117;color:#c9d1d9;padding:14px;border-radius:6px;overflow:auto}
+  pre code{background:none;padding:0;color:inherit}
+  table{border-collapse:collapse;margin:16px 0;width:100%;background:#fff;font-size:.92em}
+  th,td{border:1px solid #dfe2e5;padding:8px 12px;text-align:left;vertical-align:top}
+  th{background:#f6f8fa;font-weight:600}
+  .card{background:#fff;border:1px solid #e1e4e8;border-radius:8px;padding:18px 24px;margin:18px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .mermaid{background:#fff;padding:16px;border-radius:6px;border:1px solid #eaecef;text-align:center}
+  .warn{background:#fff8c5;border:2px solid #d4a72c;border-radius:8px;padding:18px 24px;margin:24px 0}
+  .warn h3{border:0;margin:0 0 12px;color:#7d4e00}
+  .warn ul{margin:8px 0;padding-left:22px;line-height:1.8}
+  .warn li{margin:6px 0}
+  .lang-switch{position:fixed;top:14px;right:18px;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:6px 10px;font-size:.85em;color:#24292e;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<select class="lang-switch" onchange="if(this.value)location.href=this.value">
+  <option value="" disabled>🌐 Language</option>
+  <option value="visual.vi.html">🇻🇳 Tiếng Việt</option>
+  <option value="visual.en.html">🇬🇧 English</option>
+  <option value="visual.zh.html">🇨🇳 简体中文</option>
+  <option value="visual.ja.html">🇯🇵 日本語</option>
+  <option value="visual.ko.html" selected>🇰🇷 한국어</option>
+</select>
+
+<h1>📱 mobile-inspect — 시각 개요</h1>
+<p>Android/iOS 앱의 실시간 UI 트리를 캡처합니다. Claude 가 Appium 셀렉터를 찾고, 앱 전체를 자동 크롤링하고, Page Object 를 직접 생성합니다. 캡처된 각 페이지마다 3 개 파일을 출력:<code>.xml</code>(트리)、<code>.png</code>(스크린샷)、<code>.elements.md</code>(요소 표).</p>
+
+<h2>1. 이 스킬은 무엇을 하나요?</h2>
+<div class="card"><div class="mermaid">flowchart LR
+  A[👤 User] --> B[🤖 Claude]
+  B --> C[inspect.sh]
+  C -->|Android| D[adb shell<br/>uiautomator dump<br/>+ screencap]
+  C -->|iOS| E[WebDriverAgent<br/>:8100]
+  D --> F[.xml + .png +<br/>.elements.md]
+  E --> F
+  F --> G[Selector suggest<br/>+ POM gen]
+  G --> B
+  style A fill:#e7f3ff
+  style F fill:#fff8c5
+  style G fill:#dafbe1</div></div>
+
+<h2>2. 언제 사용하나요?</h2>
+<div>
+  <div class="card">
+    <h3>🔍 케이스 1 — 특정 요소 이름 찾기</h3>
+    <p><b>상황:</b> 'Like 버튼 클릭' 을 작성 중인데 Like 요소의 ID 를 모름.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:20px;justify-content:center;flex-wrap:wrap">
+<div style="display:inline-flex;flex-direction:column;align-items:center;gap:6px"><svg width="180" height="300" viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="5" width="170" height="290" rx="20" fill="#fff" stroke="#24292e" stroke-width="2.5"/>
+    <rect x="75" y="10" width="30" height="4" rx="2" fill="#24292e"/>
+    <rect x="20" y="30" width="140" height="40" fill="#f0f0f0"/>
+    <text x="90" y="55" text-anchor="middle" font-size="11" fill="#666">App Top Bar</text>
+    <rect x="40" y="160" width="100" height="36" fill="#ffe0e0" stroke="#cf222e" stroke-width="2.5"/>
+        <text x="90" y="183" text-anchor="middle" font-size="13" font-weight="600" fill="#cf222e">Like</text>
+    <rect x="20" y="250" width="140" height="35" fill="#e8e8e8"/>
+    <text x="90" y="272" text-anchor="middle" font-size="10" fill="#666">Bottom Tabs</text>
+    </svg><div style="font-size:11px;color:#586069">App on emulator</div></div>
+<div style="font-size:30px">→</div>
+<div style="background:#e7f3ff;border:1px solid #0366d6;border-radius:14px;padding:10px 16px;max-width:200px">
+  <div style="font-size:11px;color:#586069">You ask Claude:</div>
+  <div style="font-family:ui-monospace,Menlo,monospace;font-size:13px">find selector for Like</div>
+</div>
+<div style="font-size:30px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069;margin-bottom:6px">✅ Skill returns:</div>
+  <code style="font-size:14px;font-weight:600">~LikeButton</code>
+</div>
+</div></div>
+    <p><b>Claude 에게 말하기:</b> <code>"Like 버튼 selector 찾아줘"</code></p>
+    <p><b>스킬이 함:</b> 현재 UI dump → <code>~LikeButton</code> 또는 <code>id/like_btn</code> 반환, 테스트에 붙여넣기 가능.</p>
+  </div>
+  <div class="card">
+    <h3>🐛 케이스 2 — 테스트가 '요소를 찾을 수 없음' 실패</h3>
+    <p><b>상황:</b> Appium 이 <code>NoSuchElement</code> 를 던지는데 버튼이 분명히 보임.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">❌ Test code:</div>
+  <code style="font-size:13px;display:block">$("~SaveButton")</code>
+  <div style="color:#cf222e;font-size:11px">→ NoSuchElement</div>
+</div>
+<div style="font-size:24px">🔍</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">Skill finds:</div>
+  <code style="font-size:13px">name="<b>SaveBtn</b>"</code>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">✅ Fixed:</div>
+  <code style="font-size:13px">$("~SaveBtn")</code>
+</div>
+</div></div>
+    <p><b>Claude 에게 말하기:</b> <code>"inspect screen, 왜 Appium 이 SaveButton 을 못 찾아?"</code></p>
+    <p><b>스킬이 함:</b> UI dump 후 실제 요소 이름(예:<code>SaveBtn</code>, <code>SaveButton</code> 이 아님)이나 오버레이가 가렸음을 알려줌.</p>
+  </div>
+  <div class="card">
+    <h3>🗺️ 케이스 3 — 앱 전체 한 번에 크롤링</h3>
+    <p><b>상황:</b> 프로젝트 합류 직후, 각 탭을 수동 방문하지 않고 Page Object 라이브러리를 원함.</p>
+    <div style="margin:12px 0"><div style="text-align:center">
+<div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 1</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 2</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 3</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 4</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 5</text>
+</svg>
+</div>
+<div style="font-size:24px;margin:6px 0">⬇️</div>
+<div style="display:inline-block;background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:14px 22px;font-family:ui-monospace,Menlo,monospace;font-size:12px;text-align:left;line-height:1.7">
+  📁 snapshots/android/<br>
+  &nbsp;&nbsp;📄 home.xml + home.png + home.elements.md<br>
+  &nbsp;&nbsp;📄 shorts.xml + shorts.png + shorts.elements.md<br>
+  &nbsp;&nbsp;📄 library.xml + library.png + library.elements.md<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20 pages × 3 files each</span>
+</div>
+</div></div>
+    <p><b>Claude 에게 말하기:</b> <code>"에뮬레이터에서 앱 전체 크롤"</code></p>
+    <p><b>스킬이 함:</b> 각 하단 탭 + 상단바 아이콘 자동 탭, 페이지별 3 개 파일 출력(<code>.xml</code> + <code>.png</code> + <code>.elements.md</code>). 약 3-5 분.</p>
+  </div>
+  <div class="card">
+    <h3>📦 케이스 4 — Page Object 를 프로젝트에 직접 생성</h3>
+    <p><b>상황:</b> 20+ 개 XML 이 있고 붙여넣기 가능한 TypeScript 를 WDIO 프로젝트에 직접 배치하고 싶음.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 snapshots/android/<br>
+  📄 home.xml<br>
+  📄 shorts.xml<br>
+  📄 library.xml<br>
+  <span style="color:#586069">…20 XML</span>
+</div>
+<div style="font-size:30px">→</div>
+<div style="text-align:center">
+  <div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:8px 14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600">
+    --gen-pom --target /path
+  </div>
+  <div style="font-size:24px;margin:6px 0">⬇️</div>
+</div>
+<div style="background:#fff;border:1px solid #1a7f37;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 my-wdio-project/<br>
+  &nbsp;&nbsp;📁 pages/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.page.ts <span style="color:#1a7f37">← shared</span><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 home.page.ts<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 shorts.page.ts<br>
+  &nbsp;&nbsp;📁 selectors/registries/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.ts<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20+ files</span>
+</div>
+</div></div>
+    <p><b>Claude 에게 말하기:</b> <code>"POM 생성, /Users/me/Code/my-project 에 쓰기"</code></p>
+    <p><b>스킬이 함:</b> XML 을 읽고, ≥2 페이지에 등장하는 요소를 <code>BasePage</code> 로 묶고, 페이지별 1 파일을 프로젝트에 작성(<code>--force</code> 없이는 덮어쓰지 않음).</p>
+  </div>
+</div>
+
+<h2>3. 페이지별 출력 — 3 개 병렬 파일</h2>
+<div class="card">
+<p>각 스냅샷(또는 <code>--crawl-app</code> 이 캡처하는 각 페이지)마다 같은 베이스 이름의 <strong>3 개 형제 파일</strong>을 작성:</p>
+<ul style="line-height:2">
+  <li><strong><code><name>.xml</code></strong> — UI 트리 데이터(<code>--gen-pom</code> 의 입력).</li>
+  <li><strong><code><name>.png</code></strong> — 페이지의 실제 스크린샷. 나중에 시각적 맥락을 다시 보거나, XML 과 대조.</li>
+  <li><strong><code><name>.elements.md</code></strong> — 명명된 모든 요소의 마크다운 표:<code>Name | Type | Bounds | Tap</code> — XML 을 파싱하지 않고 빠르게 읽기.</li>
+</ul>
+<p style="font-size:.92em;color:#586069">XML 만 필요하면 <code>MOBILE_INSPECT_NO_EXTRAS=1</code> 로 두 추가 파일 스킵.</p>
+</div>
+
+<h2>4. 치트시트</h2>
+<table>
+<tr><th>Claude 에게 말하기</th><th>스킬 실행</th><th>출력</th></tr>
+<tr><td>"inspect screen"</td><td><code>inspect.sh android</code></td><td>Full element tree</td></tr>
+<tr><td>"find selector for X"</td><td><code>--suggest "X"</code></td><td>Best selector (id > desc > text > xpath)</td></tr>
+<tr><td>"list elements"</td><td><code>--enumerate</code></td><td>All named elements + Page Object hints</td></tr>
+<tr><td>"snapshot Home"</td><td><code>--snapshot home</code></td><td>Save .xml + .png + .elements.md</td></tr>
+<tr><td>"crawl whole app"</td><td><code>--crawl-app</code></td><td>Auto-snapshot every bottom-tab + sub-screen</td></tr>
+<tr><td>"merge snapshots"</td><td><code>--merge</code></td><td>Cross-page element analysis</td></tr>
+<tr><td>"list templates"</td><td><code>--list-templates</code></td><td>raw / cross-platform / cross-platform-registry</td></tr>
+<tr><td>"gen POM, write to /path"</td><td><code>--gen-pom --template ... --target /path</code></td><td>Write Page Objects straight to project</td></tr>
+<tr><td>"explore zone"</td><td><code>--explore-zone top|bottom|middle</code></td><td>Auto-tap each elem in zone</td></tr>
+</table>
+
+<h2>5. 전체 워크플로우 — Page Object 라이브러리 구축</h2>
+<div class="card">
+<p>앱 전체의 Page Object 라이브러리를 4 명령어로 구축:</p>
+<ol style="line-height:2">
+  <li>1️⃣ <strong>앱 열고 Home 에서 정지</strong> — 게스트 모드</li>
+  <li>2️⃣ <strong>자동 크롤</strong> — <code>inspect.sh android --crawl-app</code>(약 3-5 분)</li>
+  <li>3️⃣ <strong>템플릿 선택</strong> — <code>inspect.sh --list-templates</code></li>
+  <li>4️⃣ <strong>생성 + 프로젝트에 쓰기</strong> — <code>inspect.sh android --gen-pom --template cross-platform-registry --target /path/to/wdio-project</code></li>
+</ol>
+<p>결과:<code>pages/*.page.ts</code> + <code>selectors/registries/*.ts</code> 바로 붙여넣기 가능, 공유 요소는 자동으로 <code>BasePage</code> 로 승격.</p>
+<div class="mermaid">flowchart TD
+  A[1️⃣ App on Home] --> B[2️⃣ --crawl-app<br/>~3-5 min]
+  B --> C[snapshots/android/<br/>20× .xml + .png + .elements.md]
+  C --> D[3️⃣ --list-templates]
+  D --> E[4️⃣ --gen-pom<br/>--template ...<br/>--target /path]
+  E --> F[💾 pages/*.page.ts<br/>selectors/registries/*.ts]
+  style A fill:#fff3cd
+  style B fill:#dafbe1
+  style E fill:#dafbe1
+  style F fill:#e7f3ff</div>
+</div>
+
+<div class="warn">
+  <h3>⚠️ 안전</h3>
+  <ul>
+    <li><strong>테스트 계정 사용, 운영 계정 절대 금지.</strong> 스킬은 실제로 탭합니다. 로그인된 계정에서는 Like/Comment/Send/Delete/Pay 가 의도치 않게 발생 가능. <code>--crawl-app</code> 는 기본 게스트 모드 + 위험 키워드 스킵.</li>
+    <li><strong>XML + PNG 에 PII 포함 가능.</strong> 이메일, 이름, 검색 기록, 메시지 미리보기. <code>snapshots/</code> 는 gitignore 되어 있지만, 민감한 데이터로 취급.</li>
+  </ul>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true, theme:'default', flowchart:{curve:'basis'}});
+</script>
+</body>
+</html>

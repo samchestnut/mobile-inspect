@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>mobile-inspect — Visual Overview</title>
+<script src="./mermaid.min.js"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans","Apple SD Gothic Neo","Segoe UI",sans-serif;
+       max-width:1100px;margin:40px auto;padding:0 24px;line-height:1.7;color:#24292e;font-size:15px;background:#fafbfc}
+  h1,h2,h3{border-bottom:1px solid #eaecef;padding-bottom:.3em;margin-top:1.8em;font-weight:600}
+  h1{font-size:2em;border:0} h2{font-size:1.4em} h3{font-size:1.15em;border:0;margin-top:0}
+  code{background:#f6f8fa;padding:2px 6px;border-radius:3px;font-size:.88em;font-family:ui-monospace,Menlo,monospace}
+  pre{background:#0d1117;color:#c9d1d9;padding:14px;border-radius:6px;overflow:auto}
+  pre code{background:none;padding:0;color:inherit}
+  table{border-collapse:collapse;margin:16px 0;width:100%;background:#fff;font-size:.92em}
+  th,td{border:1px solid #dfe2e5;padding:8px 12px;text-align:left;vertical-align:top}
+  th{background:#f6f8fa;font-weight:600}
+  .card{background:#fff;border:1px solid #e1e4e8;border-radius:8px;padding:18px 24px;margin:18px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .mermaid{background:#fff;padding:16px;border-radius:6px;border:1px solid #eaecef;text-align:center}
+  .warn{background:#fff8c5;border:2px solid #d4a72c;border-radius:8px;padding:18px 24px;margin:24px 0}
+  .warn h3{border:0;margin:0 0 12px;color:#7d4e00}
+  .warn ul{margin:8px 0;padding-left:22px;line-height:1.8}
+  .warn li{margin:6px 0}
+  .lang-switch{position:fixed;top:14px;right:18px;background:#fff;border:1px solid #d0d7de;border-radius:6px;padding:6px 10px;font-size:.85em;color:#24292e;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<select class="lang-switch" onchange="if(this.value)location.href=this.value">
+  <option value="" disabled>🌐 Language</option>
+  <option value="visual.vi.html" selected>🇻🇳 Tiếng Việt</option>
+  <option value="visual.en.html">🇬🇧 English</option>
+  <option value="visual.zh.html">🇨🇳 简体中文</option>
+  <option value="visual.ja.html">🇯🇵 日本語</option>
+  <option value="visual.ko.html">🇰🇷 한국어</option>
+</select>
+
+<h1>📱 mobile-inspect — Visual Overview</h1>
+<p>Skill chụp UI tree của app Android/iOS để Claude tìm Appium selector, có thể tự crawl toàn bộ app và sinh Page Object luôn. Mỗi page chụp ra 3 file: <code>.xml</code> (tree), <code>.png</code> (ảnh màn hình), <code>.elements.md</code> (bảng element).</p>
+
+<h2>1. Skill làm gì?</h2>
+<div class="card"><div class="mermaid">flowchart LR
+  A[👤 User] --> B[🤖 Claude]
+  B --> C[inspect.sh]
+  C -->|Android| D[adb shell<br/>uiautomator dump<br/>+ screencap]
+  C -->|iOS| E[WebDriverAgent<br/>:8100]
+  D --> F[.xml + .png +<br/>.elements.md]
+  E --> F
+  F --> G[Selector suggest<br/>+ POM gen]
+  G --> B
+  style A fill:#e7f3ff
+  style F fill:#fff8c5
+  style G fill:#dafbe1</div></div>
+
+<h2>2. Khi nào dùng?</h2>
+<div>
+  <div class="card">
+    <h3>🔍 Case 1 — Tìm tên element cụ thể</h3>
+    <p><b>Tình huống:</b> Đang viết test 'Click Like' nhưng không biết nút Like tên gì.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:20px;justify-content:center;flex-wrap:wrap">
+<div style="display:inline-flex;flex-direction:column;align-items:center;gap:6px"><svg width="180" height="300" viewBox="0 0 180 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="5" width="170" height="290" rx="20" fill="#fff" stroke="#24292e" stroke-width="2.5"/>
+    <rect x="75" y="10" width="30" height="4" rx="2" fill="#24292e"/>
+    <rect x="20" y="30" width="140" height="40" fill="#f0f0f0"/>
+    <text x="90" y="55" text-anchor="middle" font-size="11" fill="#666">App Top Bar</text>
+    <rect x="40" y="160" width="100" height="36" fill="#ffe0e0" stroke="#cf222e" stroke-width="2.5"/>
+        <text x="90" y="183" text-anchor="middle" font-size="13" font-weight="600" fill="#cf222e">Like</text>
+    <rect x="20" y="250" width="140" height="35" fill="#e8e8e8"/>
+    <text x="90" y="272" text-anchor="middle" font-size="10" fill="#666">Bottom Tabs</text>
+    </svg><div style="font-size:11px;color:#586069">App on emulator</div></div>
+<div style="font-size:30px">→</div>
+<div style="background:#e7f3ff;border:1px solid #0366d6;border-radius:14px;padding:10px 16px;max-width:200px">
+  <div style="font-size:11px;color:#586069">You ask Claude:</div>
+  <div style="font-family:ui-monospace,Menlo,monospace;font-size:13px">find selector for Like</div>
+</div>
+<div style="font-size:30px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069;margin-bottom:6px">✅ Skill returns:</div>
+  <code style="font-size:14px;font-weight:600">~LikeButton</code>
+</div>
+</div></div>
+    <p><b>Bạn bảo Claude:</b> <code>"find selector cho nút Like"</code></p>
+    <p><b>Skill làm:</b> Chụp UI hiện tại → trả về <code>~LikeButton</code> hoặc <code>id/like_btn</code> để copy vào test.</p>
+  </div>
+  <div class="card">
+    <h3>🐛 Case 2 — Test fail 'không thấy element'</h3>
+    <p><b>Tình huống:</b> Appium báo <code>NoSuchElement</code> nhưng nhìn thấy nút rõ ràng.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">❌ Test code:</div>
+  <code style="font-size:13px;display:block">$("~SaveButton")</code>
+  <div style="color:#cf222e;font-size:11px">→ NoSuchElement</div>
+</div>
+<div style="font-size:24px">🔍</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">Skill finds:</div>
+  <code style="font-size:13px">name="<b>SaveBtn</b>"</code>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:14px 18px">
+  <div style="font-size:11px;color:#586069">✅ Fixed:</div>
+  <code style="font-size:13px">$("~SaveBtn")</code>
+</div>
+</div></div>
+    <p><b>Bạn bảo Claude:</b> <code>"inspect screen, sao Appium không thấy SaveButton?"</code></p>
+    <p><b>Skill làm:</b> Chụp UI, chỉ ra element thật tên gì (vd <code>SaveBtn</code> không phải <code>SaveButton</code>) hoặc bị overlay che.</p>
+  </div>
+  <div class="card">
+    <h3>🗺️ Case 3 — Crawl toàn bộ app trong 1 lần</h3>
+    <p><b>Tình huống:</b> Vừa join project, muốn Page Object cho cả app, không phải gõ tay từng tab.</p>
+    <div style="margin:12px 0"><div style="text-align:center">
+<div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:14px;flex-wrap:wrap">
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 1</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 2</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 3</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 4</text>
+</svg><span style="font-size:18px">→</span>
+<svg width="80" height="130" viewBox="0 0 80 130">
+  <rect x="5" y="5" width="70" height="120" rx="8" fill="#fff" stroke="#24292e" stroke-width="2"/>
+  <rect x="15" y="15" width="50" height="20" fill="#f0f0f0"/>
+  <rect x="15" y="40" width="50" height="60" fill="#e8e8e8"/>
+  <rect x="15" y="105" width="50" height="15" fill="#d0d0d0"/>
+  <text x="40" y="76" text-anchor="middle" font-size="10" font-weight="600" fill="#0366d6">Tab 5</text>
+</svg>
+</div>
+<div style="font-size:24px;margin:6px 0">⬇️</div>
+<div style="display:inline-block;background:#f6f8fa;border:1px solid #d0d7de;border-radius:8px;padding:14px 22px;font-family:ui-monospace,Menlo,monospace;font-size:12px;text-align:left;line-height:1.7">
+  📁 snapshots/android/<br>
+  &nbsp;&nbsp;📄 home.xml + home.png + home.elements.md<br>
+  &nbsp;&nbsp;📄 shorts.xml + shorts.png + shorts.elements.md<br>
+  &nbsp;&nbsp;📄 library.xml + library.png + library.elements.md<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20 pages × 3 files each</span>
+</div>
+</div></div>
+    <p><b>Bạn bảo Claude:</b> <code>"crawl toàn bộ app trên emulator"</code></p>
+    <p><b>Skill làm:</b> Tự tap qua từng bottom-tab + icon top-bar, mỗi page ra 3 file (<code>.xml</code> + <code>.png</code> + <code>.elements.md</code>). ~3-5 phút.</p>
+  </div>
+  <div class="card">
+    <h3>📦 Case 4 — Sinh Page Object code thẳng vào project</h3>
+    <p><b>Tình huống:</b> Có 20+ file XML, muốn TypeScript paste-able vào WDIO project.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:wrap">
+<div style="background:#fff;border:1px solid #d0d7de;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 snapshots/android/<br>
+  📄 home.xml<br>
+  📄 shorts.xml<br>
+  📄 library.xml<br>
+  <span style="color:#586069">…20 XML</span>
+</div>
+<div style="font-size:30px">→</div>
+<div style="text-align:center">
+  <div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:8px 14px;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600">
+    --gen-pom --target /path
+  </div>
+  <div style="font-size:24px;margin:6px 0">⬇️</div>
+</div>
+<div style="background:#fff;border:1px solid #1a7f37;border-radius:8px;padding:12px 14px;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.7;text-align:left">
+  📁 my-wdio-project/<br>
+  &nbsp;&nbsp;📁 pages/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.page.ts <span style="color:#1a7f37">← shared</span><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 home.page.ts<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 shorts.page.ts<br>
+  &nbsp;&nbsp;📁 selectors/registries/<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;📄 base.ts<br>
+  &nbsp;&nbsp;<span style="color:#586069">…20+ files</span>
+</div>
+</div></div>
+    <p><b>Bạn bảo Claude:</b> <code>"sinh code POM, ghi vào /Users/me/Code/my-project"</code></p>
+    <p><b>Skill làm:</b> Đọc XML, gom element xuất hiện ≥2 page vào <code>BasePage</code>, mỗi page ra 1 file riêng, ghi thẳng vào project (không đè cũ trừ khi <code>--force</code>).</p>
+  </div>
+</div>
+
+<h2>3. Output mỗi page — 3 file song song</h2>
+<div class="card">
+<p>Mỗi lần snapshot 1 page (hoặc khi <code>--crawl-app</code> tự chụp), skill ra <strong>3 file song song</strong> cùng tên:</p>
+<ul style="line-height:2">
+  <li><strong><code><name>.xml</code></strong> — UI tree data (đầu vào cho <code>--gen-pom</code>)</li>
+  <li><strong><code><name>.png</code></strong> — Ảnh chụp màn hình thật của page đó. Để bạn nhìn lại sau, hoặc so sánh visual với XML.</li>
+  <li><strong><code><name>.elements.md</code></strong> — Bảng markdown liệt kê tất cả element có tên: <code>Name | Type | Bounds | Tap</code> — đọc nhanh không cần parse XML.</li>
+</ul>
+<p style="font-size:.92em;color:#586069">Skip 2 file extra bằng env <code>MOBILE_INSPECT_NO_EXTRAS=1</code> nếu chỉ cần XML.</p>
+</div>
+
+<h2>4. Cheatsheet — bảng lệnh</h2>
+<table>
+<tr><th>Bạn nói với Claude</th><th>Skill chạy</th><th>Output</th></tr>
+<tr><td>"inspect screen"</td><td><code>inspect.sh android</code></td><td>Full element tree</td></tr>
+<tr><td>"find selector for X"</td><td><code>--suggest "X"</code></td><td>Best selector (id > desc > text > xpath)</td></tr>
+<tr><td>"list elements"</td><td><code>--enumerate</code></td><td>All named elements + Page Object hints</td></tr>
+<tr><td>"snapshot Home"</td><td><code>--snapshot home</code></td><td>Save .xml + .png + .elements.md</td></tr>
+<tr><td>"crawl whole app"</td><td><code>--crawl-app</code></td><td>Auto-snapshot every bottom-tab + sub-screen</td></tr>
+<tr><td>"merge snapshots"</td><td><code>--merge</code></td><td>Cross-page element analysis</td></tr>
+<tr><td>"list templates"</td><td><code>--list-templates</code></td><td>raw / cross-platform / cross-platform-registry</td></tr>
+<tr><td>"gen POM, write to /path"</td><td><code>--gen-pom --template ... --target /path</code></td><td>Write Page Objects straight to project</td></tr>
+<tr><td>"explore zone"</td><td><code>--explore-zone top|bottom|middle</code></td><td>Auto-tap each elem in zone</td></tr>
+</table>
+
+<h2>5. Workflow đầy đủ — sinh Page Object library</h2>
+<div class="card">
+<p>Dựng Page Object library cho cả app — 4 lệnh:</p>
+<ol style="line-height:2">
+  <li>1️⃣ <strong>Mở app, dừng ở Home</strong> — guest mode</li>
+  <li>2️⃣ <strong>Auto-crawl</strong> — <code>inspect.sh android --crawl-app</code> (~3-5 phút)</li>
+  <li>3️⃣ <strong>Chọn template</strong> — <code>inspect.sh --list-templates</code></li>
+  <li>4️⃣ <strong>Sinh code + ghi vào project</strong> — <code>inspect.sh android --gen-pom --template cross-platform-registry --target /path/to/wdio-project</code></li>
+</ol>
+<p>Kết quả: <code>pages/*.page.ts</code> + <code>selectors/registries/*.ts</code> paste-able, element shared tự promote vào <code>BasePage</code>.</p>
+<div class="mermaid">flowchart TD
+  A[1️⃣ App on Home] --> B[2️⃣ --crawl-app<br/>~3-5 min]
+  B --> C[snapshots/android/<br/>20× .xml + .png + .elements.md]
+  C --> D[3️⃣ --list-templates]
+  D --> E[4️⃣ --gen-pom<br/>--template ...<br/>--target /path]
+  E --> F[💾 pages/*.page.ts<br/>selectors/registries/*.ts]
+  style A fill:#fff3cd
+  style B fill:#dafbe1
+  style E fill:#dafbe1
+  style F fill:#e7f3ff</div>
+</div>
+
+<div class="warn">
+  <h3>⚠️ Cảnh báo an toàn</h3>
+  <ul>
+    <li><strong>Dùng test account, KHÔNG dùng prod.</strong> Skill tap thật. Trên account login → có thể trigger Like/Comment/Send/Delete/Pay ngoài ý muốn. <code>--crawl-app</code> mặc định guest mode + skip danger keyword.</li>
+    <li><strong>Dump XML + PNG có thể chứa PII.</strong> Email, tên, history, message preview. Folder <code>snapshots/</code> đã gitignore, vẫn coi là nhạy cảm. Đừng share, đừng commit.</li>
+  </ul>
+</div>
+
+<script>
+mermaid.initialize({startOnLoad:true, theme:'default', flowchart:{curve:'basis'}});
+</script>
+</body>
+</html>
