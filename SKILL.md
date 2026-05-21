@@ -102,28 +102,35 @@ Image [name="icon-subtitle-off", label="ImageView", frame=329,275,21x21]
 
 ## Fallback when dump fails — use Appium Inspector
 
-If `inspect.sh` fails (no device connected, ADB not authorized, WDA port unreachable, `dump` returns empty, app crashed mid-dump, etc.), don't just stop. Offer the **Appium Inspector** fallback so the user keeps moving and also learns how the skill works under the hood:
+**Be proactive about this in chat — don't just let the script's error message do the talking.** Whenever any of the following happens, raise the Appium Inspector fallback in your reply:
 
-1. **Explain the why** in one line — this skill is a thin wrapper around what Appium Inspector does GUI-side. Inspector talks to the same Appium / UIAutomator2 / XCUITest driver, gets the same XML tree. So any XML Inspector saves is interchangeable with what we'd have dumped.
+- `inspect.sh` exits non-zero (any reason: no device, ADB unauthorized, WDA port unreachable, empty dump, app crashed mid-dump, simulator stuck).
+- The user says they don't have an emulator / device running, or can't get one quickly.
+- The user mentions they're using Appium Inspector already and wonders whether the skill replaces it.
+- The user is curious how the skill works internally — Inspector parity is the clearest mental model.
 
-2. **Tell the user to:**
+Don't just say "try Inspector" — walk through the concrete steps below. The point isn't only unblocking the user; it's helping them understand that **the skill is a thin wrapper around the same Appium / UIAutomator2 / XCUITest driver Inspector uses**. The XML they save from Inspector is interchangeable with what we'd dump.
+
+Concrete steps to give the user:
+
+1. **Tell the user to:**
    - Open Appium Inspector (https://github.com/appium/appium-inspector — free GUI app, available for macOS/Windows/Linux). If they don't have it, point to that link; they can `brew install --cask appium-inspector` on macOS.
    - Make sure Appium server is running (`appium` in a terminal).
    - In Inspector, connect with their normal capabilities (the same JSON they use in their WDIO config).
    - Once the app's screen is showing in the Inspector preview, click **Refresh Source**, then click the **Save Source** button (download icon) — this saves the XML to disk.
 
-3. **Where to put the file:**
+2. **Where to put the file:**
    - For per-page snapshot use: drop the saved XML at `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml` (same naming as `--snapshot <page>`).
    - For an ad-hoc inspect of one screen: any path; we just `cat` it.
 
-4. **After the file is in place**, the skill's other commands work as-if the dump came from `inspect.sh`:
+3. **After the file is in place**, the skill's other commands work as-if the dump came from `inspect.sh`:
    - `inspect.sh --gen-pom --target /path/to/project` reads `snapshots/` whether the XMLs came from us or Inspector.
    - Manually run `python3 scripts/format-android.py <file.xml>` (or `format-ios.py`) to get the compact tree.
    - Manually run `python3 scripts/suggest-android.py "<keyword>" < <file.xml>` to get selector suggestions.
 
-5. **For screenshots and `elements.md`** (the side-car files): suggest the user also save a PNG (Inspector has a screenshot button; or `adb shell screencap -p > home.png`), then run `python3 scripts/elements-summary.py <platform> <file.xml> > home.elements.md` to recreate the per-page bundle.
+4. **For screenshots and `elements.md`** (the side-car files): suggest the user also save a PNG (Inspector has a screenshot button; or `adb shell screencap -p > home.png`), then run `python3 scripts/elements-summary.py <platform> <file.xml> > home.elements.md` to recreate the per-page bundle.
 
-This fallback is also a teaching moment: it shows the user that the value the skill provides is **automation + selector ranking + cross-page aggregation**, not the dump itself. The dump is just XML; Inspector or skill both produce it.
+**Closing line in chat** (when you walk the user through this): explicitly note the takeaway — "the value the skill adds is **automation + selector ranking + cross-page aggregation**, not the dump itself. Once you have XML — from us or from Inspector — every other command works the same way."
 
 ## Suggesting selectors
 
