@@ -35,6 +35,19 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+
+
+def save_extras(xml_path: Path):
+    """Call save-extras.sh to drop PNG + elements.md sibling files."""
+    try:
+        subprocess.run(
+            ["bash", str(SCRIPT_DIR / "save-extras.sh"), "android", str(xml_path)],
+            check=False, timeout=10,
+        )
+    except Exception:
+        pass
+
 # --- Tunables ---------------------------------------------------------------
 TAP_WAIT_S = 1.5
 RECOVERY_WAIT_S = 0.8
@@ -274,7 +287,9 @@ def main():
     home_root = ET.fromstring(home_xml)
     screen = screen_size_from_root(home_root)
     home_anchors = anchor_set(home_xml)
-    (snap_dir / "home.xml").write_text(home_xml)
+    home_xml_path = snap_dir / "home.xml"
+    home_xml_path.write_text(home_xml)
+    save_extras(home_xml_path)
     print(f"  saved snapshots/android/home.xml ({len(home_xml)//1024}KB)", file=sys.stderr)
 
     # Detect bottom tabs
@@ -310,6 +325,7 @@ def main():
         slug_name = slug(tname)
         tab_file = snap_dir / f"{slug_name}.xml"
         tab_file.write_text(tab_xml)
+        save_extras(tab_file)
         summary["tabs"].append({"name": tname, "file": tab_file.name})
         print(f"    saved {tab_file.name}", file=sys.stderr)
 
@@ -351,7 +367,9 @@ def main():
                 print(f"        -> no-op", file=sys.stderr)
             else:
                 fname = f"{slug_name}__{slug(ename)}.xml"
-                (snap_dir / fname).write_text(after_xml)
+                sub_file = snap_dir / fname
+                sub_file.write_text(after_xml)
+                save_extras(sub_file)
                 summary["subscreens"].append({"tab": tname, "elem": ename,
                                               "file": fname,
                                               "kind": "modal" if still_tab else "screen"})

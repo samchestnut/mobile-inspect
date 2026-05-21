@@ -57,6 +57,7 @@ Flags:
 - no platform arg → auto-detect (errors if both an Android device and an iOS sim are connected)
 - `--raw` → print the unprocessed XML (skip the compact formatter)
 - `--filter <substring>` → only show subtrees whose tag, name, label, or value contains the substring (case-insensitive)
+- `--snapshot <name>` → save current screen as `snapshots/<platform>/<name>.xml` + screenshot `<name>.png` + element summary `<name>.elements.md`. Skip the extras with `MOBILE_INSPECT_NO_EXTRAS=1`.
 - `--gen-pom [--template <name>] [--target <project-path>] [--force]` → Generate Page Object TypeScript from saved snapshots.
   - **Templates** select the code style:
     - `raw` (default) — `driver.isIOS ? $('~ios') : $('~android')` ternary, no helper imports
@@ -65,7 +66,7 @@ Flags:
   - `--target <dir>` → instead of printing to stdout, write each `// === FILE: <path> ===` section into `<dir>/<path>`. Refuses to overwrite existing files unless `--force`. Refuses paths that escape the target dir.
   - `--list-templates` → enumerate all templates.
 - `--explore-zone <top|bottom|middle>` → **Android only.** Auto-tap each named element in the chosen screen zone, dump the resulting screen, diff vs the starting screen, then recover (back/relaunch) before the next tap. Skips child-duplicates and pure labels. Outputs `explore/<timestamp>-<zone>/` with one XML per element + `_index.md`. Safety: only taps within the picked zone — does NOT recurse into newly opened screens.
-- `--crawl-app` → **Android only.** Full app crawl: snapshot the current screen, detect bottom-nav tabs, then for each tab also explore top-bar elements. Aggregates everything into `snapshots/android/` so a single `--merge` + `--gen-pom` can build the whole Page Object library. Safety:
+- `--crawl-app` → **Android only.** Full app crawl: snapshot the current screen, detect bottom-nav tabs, then for each tab also explore top-bar elements. Aggregates everything into `snapshots/android/` so a single `--merge` + `--gen-pom` can build the whole Page Object library. Every captured page produces 3 side-by-side files: `<name>.xml` (UI tree), `<name>.png` (screenshot), `<name>.elements.md` (table of named elements). Safety:
   - **Guest mode by default.** Skill never logs in or fills forms.
   - Skips elements whose name matches danger keywords (Create / Upload / Camera / Record / Pay / Delete / Sign out / Subscribe / Buy).
   - If a tap navigates outside the target package, BACK and skip — never follows external apps.

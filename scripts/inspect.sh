@@ -129,6 +129,8 @@ if [[ -n "$SNAPSHOT" ]]; then
   fi
   bytes=$(wc -c <"$out" | tr -d ' ')
   echo "Saved snapshot: $out ($bytes bytes)"
+  # Side-cars: PNG + elements.md (skip with MOBILE_INSPECT_NO_EXTRAS=1)
+  bash "$SCRIPT_DIR/save-extras.sh" "$PLATFORM" "$out" || true
   echo "Run '--merge' after collecting snapshots from multiple pages."
   exit 0
 fi
