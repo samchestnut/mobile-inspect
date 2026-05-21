@@ -11,7 +11,7 @@ A Claude Code skill that inspects the live UI element tree of any Android or iOS
 - **Enumerate** every named/tappable element on screen with one-shot Page Object suggestions
 - **Snapshot + merge** multiple screens to see which elements are shared (BasePage candidates) vs page-specific
 - **Auto-explore zones** (top app bar / bottom nav) — tap each element, dump the resulting screen, recover, repeat
-- **Crawl the whole app** in one command — auto-snapshot every bottom-tab plus its top-bar sub-screens (`--crawl-app`)
+- **Crawl the whole app** in one command — auto-snapshot every bottom-tab plus its top-bar sub-screens (`--crawl-app`). Each captured page produces 3 side-by-side files: `<name>.xml` (UI tree), `<name>.png` (screenshot), `<name>.elements.md` (markdown table of named elements). Skip the screenshot + summary with `MOBILE_INSPECT_NO_EXTRAS=1`.
 - **Generate Page Objects** in TypeScript with a choice of templates (raw / cross-platform / cross-platform-registry) and write them straight into your project (`--target /path/to/project`)
 
 Backends:
