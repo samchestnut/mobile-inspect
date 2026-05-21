@@ -154,6 +154,17 @@ Selector recommendations (best first):
 4. `text` — locale-fragile, flagged
 5. xpath — last resort
 
+## Fallback when dump fails
+
+If `inspect.sh` errors out (no device, ADB unauthorized, WDA port dead, empty dump…), use [Appium Inspector](https://github.com/appium/appium-inspector) as a manual fallback — same UI tree, same XML format:
+
+1. Open Appium Inspector and connect with your normal Appium capabilities.
+2. Click **Refresh Source**, then **Save Source** → downloads an XML.
+3. Move it to `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml`.
+4. The skill's other commands (`--gen-pom`, `--merge`, `format-*.py`, `suggest-*.py`, `elements-summary.py`) work on Inspector-saved XML exactly as if it came from `inspect.sh`.
+
+This is also a useful mental model: the skill is a thin wrapper around the same Appium / UIAutomator2 / XCUITest driver Inspector talks to. The dump itself is just XML; the skill's value-add is automation + selector ranking + cross-page aggregation.
+
 ## Limitations
 
 - iOS real-device WDA provisioning is out of scope (use Apple Developer signing / Appium / Xcode once)

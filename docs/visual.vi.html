@@ -189,6 +189,29 @@
     <p><b>Bạn bảo Claude:</b> <code>"sinh code POM, ghi vào /Users/me/Code/my-project"</code></p>
     <p><b>Skill làm:</b> Đọc XML, gom element xuất hiện ≥2 page vào <code>BasePage</code>, mỗi page ra 1 file riêng, ghi thẳng vào project (không đè cũ trừ khi <code>--force</code>).</p>
   </div>
+  <div class="card">
+    <h3>🛟 Case 5 — Khi dump fail, dùng Appium Inspector làm fallback</h3>
+    <p><b>Tình huống:</b> ADB không thấy device, WDA crash, hoặc dump trả về XML rỗng — skill báo lỗi.</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ❌ inspect.sh android<br>
+  <span style="color:#cf222e">No device / WDA dead / empty dump</span>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px;text-align:center">
+  <div style="font-size:11px;color:#7d4e00;margin-bottom:6px">Use Appium Inspector instead</div>
+  <div style="font-weight:600;font-size:13px">Refresh Source<br>↓<br>Save Source</div>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ✅ snapshots/&lt;plat&gt;/<br>
+  &nbsp;&nbsp;home.xml ← from Inspector<br>
+  <span style="color:#1a7f37">--gen-pom works as usual</span>
+</div>
+</div></div>
+    <p><b>Bạn bảo Claude:</b> <code>"không dump được, làm thế nào?"</code></p>
+    <p><b>Skill làm:</b> Skill chỉ là wrapper quanh Appium/UIAutomator2/XCUITest driver — cùng thứ Appium Inspector dùng. Mở [Appium Inspector](https://github.com/appium/appium-inspector), connect với capabilities bình thường, click <strong>Refresh Source</strong> → <strong>Save Source</strong> → có file XML. Drop file đó vào <code>~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml</code>. Tất cả lệnh khác của skill (<code>--gen-pom</code>, <code>--merge</code>, <code>format-*</code>, <code>suggest-*</code>, <code>elements-summary</code>) work bình thường — XML từ Inspector và skill là <strong>interchangeable</strong>.</p>
+  </div>
 </div>
 
 <h2>3. Output mỗi page — 3 file song song</h2>

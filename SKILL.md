@@ -100,6 +100,31 @@ Image [name="icon-subtitle-off", label="ImageView", frame=329,275,21x21]
 5. Read the tree, then answer the user's actual question (suggest selector, explain missing element). Quote the relevant 5-15 lines — do not paste a 200-node dump back at them.
 6. If the tree is large, re-run with `--filter <keyword>` to scope down before answering.
 
+## Fallback when dump fails — use Appium Inspector
+
+If `inspect.sh` fails (no device connected, ADB not authorized, WDA port unreachable, `dump` returns empty, app crashed mid-dump, etc.), don't just stop. Offer the **Appium Inspector** fallback so the user keeps moving and also learns how the skill works under the hood:
+
+1. **Explain the why** in one line — this skill is a thin wrapper around what Appium Inspector does GUI-side. Inspector talks to the same Appium / UIAutomator2 / XCUITest driver, gets the same XML tree. So any XML Inspector saves is interchangeable with what we'd have dumped.
+
+2. **Tell the user to:**
+   - Open Appium Inspector (https://github.com/appium/appium-inspector — free GUI app, available for macOS/Windows/Linux). If they don't have it, point to that link; they can `brew install --cask appium-inspector` on macOS.
+   - Make sure Appium server is running (`appium` in a terminal).
+   - In Inspector, connect with their normal capabilities (the same JSON they use in their WDIO config).
+   - Once the app's screen is showing in the Inspector preview, click **Refresh Source**, then click the **Save Source** button (download icon) — this saves the XML to disk.
+
+3. **Where to put the file:**
+   - For per-page snapshot use: drop the saved XML at `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml` (same naming as `--snapshot <page>`).
+   - For an ad-hoc inspect of one screen: any path; we just `cat` it.
+
+4. **After the file is in place**, the skill's other commands work as-if the dump came from `inspect.sh`:
+   - `inspect.sh --gen-pom --target /path/to/project` reads `snapshots/` whether the XMLs came from us or Inspector.
+   - Manually run `python3 scripts/format-android.py <file.xml>` (or `format-ios.py`) to get the compact tree.
+   - Manually run `python3 scripts/suggest-android.py "<keyword>" < <file.xml>` to get selector suggestions.
+
+5. **For screenshots and `elements.md`** (the side-car files): suggest the user also save a PNG (Inspector has a screenshot button; or `adb shell screencap -p > home.png`), then run `python3 scripts/elements-summary.py <platform> <file.xml> > home.elements.md` to recreate the per-page bundle.
+
+This fallback is also a teaching moment: it shows the user that the value the skill provides is **automation + selector ranking + cross-page aggregation**, not the dump itself. The dump is just XML; Inspector or skill both produce it.
+
 ## Suggesting selectors
 
 **Android — preference order:**

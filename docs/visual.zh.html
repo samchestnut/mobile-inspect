@@ -189,6 +189,29 @@
     <p><b>你对 Claude 说:</b> <code>"生成 POM,写入 /Users/me/Code/my-project"</code></p>
     <p><b>技能做:</b> 读 XML,把出现在 ≥2 个页面的元素归入 <code>BasePage</code>,每页一个文件写入项目(不带 <code>--force</code> 不覆盖)。</p>
   </div>
+  <div class="card">
+    <h3>🛟 场景5 — Dump 失败时用 Appium Inspector 兜底</h3>
+    <p><b>情况:</b> ADB 看不到设备、WDA 崩溃、或 dump 返回空 XML — 技能报错。</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ❌ inspect.sh android<br>
+  <span style="color:#cf222e">No device / WDA dead / empty dump</span>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px;text-align:center">
+  <div style="font-size:11px;color:#7d4e00;margin-bottom:6px">Use Appium Inspector instead</div>
+  <div style="font-weight:600;font-size:13px">Refresh Source<br>↓<br>Save Source</div>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ✅ snapshots/&lt;plat&gt;/<br>
+  &nbsp;&nbsp;home.xml ← from Inspector<br>
+  <span style="color:#1a7f37">--gen-pom works as usual</span>
+</div>
+</div></div>
+    <p><b>你对 Claude 说:</b> <code>"dump 不出来,怎么办?"</code></p>
+    <p><b>技能做:</b> 技能只是 Appium / UIAutomator2 / XCUITest driver 的薄包装,跟 Appium Inspector 用的是同一套。打开 [Appium Inspector](https://github.com/appium/appium-inspector),用你平时的 capabilities 连接,点 <strong>Refresh Source</strong> → <strong>Save Source</strong> → 得到 XML。放到 <code>~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml</code>。技能的其他命令(<code>--gen-pom</code>、<code>--merge</code>、<code>format-*</code>、<code>suggest-*</code>、<code>elements-summary</code>)照常工作 — Inspector 和技能产出的 XML <strong>可互换</strong>。</p>
+  </div>
 </div>
 
 <h2>3. 每页输出 — 3 个并行文件</h2>

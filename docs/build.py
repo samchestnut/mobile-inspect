@@ -72,6 +72,10 @@ T = {
         "case4_situ": "Có 20+ file XML, muốn TypeScript paste-able vào WDIO project.",
         "case4_say": '"sinh code POM, ghi vào /Users/me/Code/my-project"',
         "case4_do": "Đọc XML, gom element xuất hiện ≥2 page vào `BasePage`, mỗi page ra 1 file riêng, ghi thẳng vào project (không đè cũ trừ khi `--force`).",
+        "case5_h": "🛟 Case 5 — Khi dump fail, dùng Appium Inspector làm fallback",
+        "case5_situ": "ADB không thấy device, WDA crash, hoặc dump trả về XML rỗng — skill báo lỗi.",
+        "case5_say": '"không dump được, làm thế nào?"',
+        "case5_do": "Skill chỉ là wrapper quanh Appium/UIAutomator2/XCUITest driver — cùng thứ Appium Inspector dùng. Mở [Appium Inspector](https://github.com/appium/appium-inspector), connect với capabilities bình thường, click **Refresh Source** → **Save Source** → có file XML. Drop file đó vào `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml`. Tất cả lệnh khác của skill (`--gen-pom`, `--merge`, `format-*`, `suggest-*`, `elements-summary`) work bình thường — XML từ Inspector và skill là **interchangeable**.",
         "warn_account": "**Dùng test account, KHÔNG dùng prod.** Skill tap thật. Trên account login → có thể trigger Like/Comment/Send/Delete/Pay ngoài ý muốn. `--crawl-app` mặc định guest mode + skip danger keyword.",
         "warn_pii": "**Dump XML + PNG có thể chứa PII.** Email, tên, history, message preview. Folder `snapshots/` đã gitignore, vẫn coi là nhạy cảm. Đừng share, đừng commit.",
         "tbl_say": "Bạn nói với Claude",
@@ -119,6 +123,10 @@ T = {
         "case4_situ": "You have 20+ XML files and want pasteable TypeScript dropped into your WDIO project.",
         "case4_say": '"generate POM, write to /Users/me/Code/my-project"',
         "case4_do": "Reads the XMLs, groups shared elements (≥2 pages) into `BasePage`, writes one file per page into the project (won't overwrite without `--force`).",
+        "case5_h": "🛟 Case 5 — When dump fails, fall back to Appium Inspector",
+        "case5_situ": "ADB doesn't see the device, WDA crashed, or the dump returns empty XML — the skill errors out.",
+        "case5_say": '"can\'t dump, what now?"',
+        "case5_do": "The skill is a thin wrapper around the same Appium / UIAutomator2 / XCUITest driver Appium Inspector talks to. Open [Appium Inspector](https://github.com/appium/appium-inspector), connect with your normal capabilities, click **Refresh Source** → **Save Source** → you get an XML. Drop it into `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml`. All other skill commands (`--gen-pom`, `--merge`, `format-*`, `suggest-*`, `elements-summary`) work as if the XML came from us — **interchangeable**.",
         "warn_account": "**Use a test account, NEVER production.** The skill taps real elements. On a logged-in account, taps can fire Like/Comment/Send/Delete/Pay unintentionally. `--crawl-app` defaults to guest mode + skips danger keywords.",
         "warn_pii": "**XML + PNG dumps may contain PII.** Emails, names, search history, message previews. `snapshots/` is gitignored, but still treat as sensitive. Don't share, don't commit.",
         "tbl_say": "What you say to Claude",
@@ -166,6 +174,10 @@ T = {
         "case4_situ": "已有 20+ 个 XML 文件,想要可直接粘贴的 TypeScript 落地到 WDIO 项目。",
         "case4_say": '"生成 POM,写入 /Users/me/Code/my-project"',
         "case4_do": "读 XML,把出现在 ≥2 个页面的元素归入 `BasePage`,每页一个文件写入项目(不带 `--force` 不覆盖)。",
+        "case5_h": "🛟 场景5 — Dump 失败时用 Appium Inspector 兜底",
+        "case5_situ": "ADB 看不到设备、WDA 崩溃、或 dump 返回空 XML — 技能报错。",
+        "case5_say": '"dump 不出来,怎么办?"',
+        "case5_do": "技能只是 Appium / UIAutomator2 / XCUITest driver 的薄包装,跟 Appium Inspector 用的是同一套。打开 [Appium Inspector](https://github.com/appium/appium-inspector),用你平时的 capabilities 连接,点 **Refresh Source** → **Save Source** → 得到 XML。放到 `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml`。技能的其他命令(`--gen-pom`、`--merge`、`format-*`、`suggest-*`、`elements-summary`)照常工作 — Inspector 和技能产出的 XML **可互换**。",
         "warn_account": "**用测试账号,绝对不要用生产账号。** 技能真实点击。已登录账号上 → 可能误触 Like/Comment/Send/Delete/Pay。`--crawl-app` 默认游客模式 + 跳过危险关键词。",
         "warn_pii": "**XML + PNG 可能包含 PII。** 邮箱、姓名、搜索历史、消息预览。`snapshots/` 已 gitignore,但仍按敏感数据对待。",
         "tbl_say": "你对 Claude 说",
@@ -213,6 +225,10 @@ T = {
         "case4_situ": "20 以上の XML があり、ペースト可能な TypeScript を WDIO プロジェクトに直接配置したい。",
         "case4_say": '"POM 生成、/Users/me/Code/my-project に書き出し"',
         "case4_do": "XML を読み、≥2 ページに出る要素を `BasePage` に集約、ページごとに 1 ファイルをプロジェクトに書き込み(`--force` なしでは上書きしない)。",
+        "case5_h": "🛟 ケース5 — dump が失敗したら Appium Inspector でフォールバック",
+        "case5_situ": "ADB がデバイスを認識しない、WDA がクラッシュ、または dump が空の XML を返す — スキルがエラー。",
+        "case5_say": '"dump できない、どうすれば?"',
+        "case5_do": "スキルは Appium / UIAutomator2 / XCUITest driver の薄いラッパーで、Appium Inspector と同じ仕組み。[Appium Inspector](https://github.com/appium/appium-inspector) を開き、いつもの capabilities で接続、**Refresh Source** → **Save Source** で XML を取得。`~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml` に置く。スキルの他のコマンド(`--gen-pom`、`--merge`、`format-*`、`suggest-*`、`elements-summary`)はそのまま動く — Inspector とスキルが出す XML は**互換**。",
         "warn_account": "**テストアカウントを使用、本番アカウントは絶対 NG。** スキルは実際にタップします。ログイン中のアカウントでは Like/Comment/Send/Delete/Pay を意図せず発火する可能性。`--crawl-app` はデフォルトでゲストモード + 危険キーワードスキップ。",
         "warn_pii": "**XML + PNG に PII が含まれる可能性。** メール、名前、検索履歴、メッセージプレビュー。`snapshots/` は gitignore 済みですが、機密データとして扱ってください。",
         "tbl_say": "Claude への指示",
@@ -260,6 +276,10 @@ T = {
         "case4_situ": "20+ 개 XML 이 있고 붙여넣기 가능한 TypeScript 를 WDIO 프로젝트에 직접 배치하고 싶음.",
         "case4_say": '"POM 생성, /Users/me/Code/my-project 에 쓰기"',
         "case4_do": "XML 을 읽고, ≥2 페이지에 등장하는 요소를 `BasePage` 로 묶고, 페이지별 1 파일을 프로젝트에 작성(`--force` 없이는 덮어쓰지 않음).",
+        "case5_h": "🛟 케이스 5 — Dump 실패 시 Appium Inspector 폴백",
+        "case5_situ": "ADB 가 디바이스를 못 봄, WDA 가 크래시, 또는 dump 가 빈 XML 을 반환 — 스킬이 에러.",
+        "case5_say": '"dump 안 돼, 어떻게 해?"',
+        "case5_do": "스킬은 Appium / UIAutomator2 / XCUITest driver 의 얇은 래퍼 — Appium Inspector 와 같은 메커니즘. [Appium Inspector](https://github.com/appium/appium-inspector) 를 열고, 평소 capabilities 로 연결, **Refresh Source** → **Save Source** 클릭 → XML 획득. `~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml` 에 배치. 스킬의 다른 명령(`--gen-pom`, `--merge`, `format-*`, `suggest-*`, `elements-summary`)은 그대로 작동 — Inspector 와 스킬의 XML 은 **호환 가능**.",
         "warn_account": "**테스트 계정 사용, 운영 계정 절대 금지.** 스킬은 실제로 탭합니다. 로그인된 계정에서는 Like/Comment/Send/Delete/Pay 가 의도치 않게 발생 가능. `--crawl-app` 는 기본 게스트 모드 + 위험 키워드 스킵.",
         "warn_pii": "**XML + PNG 에 PII 포함 가능.** 이메일, 이름, 검색 기록, 메시지 미리보기. `snapshots/` 는 gitignore 되어 있지만, 민감한 데이터로 취급.",
         "tbl_say": "Claude 에게 말하기",
@@ -424,7 +444,25 @@ CASE4_SVG = '''<div style="display:flex;align-items:center;gap:18px;justify-cont
 </div>
 </div>'''
 
-CASE_SVGS = [None, CASE1_SVG, CASE2_SVG, CASE3_SVG, CASE4_SVG]
+CASE5_SVG = '''<div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ❌ inspect.sh android<br>
+  <span style="color:#cf222e">No device / WDA dead / empty dump</span>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px;text-align:center">
+  <div style="font-size:11px;color:#7d4e00;margin-bottom:6px">Use Appium Inspector instead</div>
+  <div style="font-weight:600;font-size:13px">Refresh Source<br>↓<br>Save Source</div>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ✅ snapshots/&lt;plat&gt;/<br>
+  &nbsp;&nbsp;home.xml ← from Inspector<br>
+  <span style="color:#1a7f37">--gen-pom works as usual</span>
+</div>
+</div>'''
+
+CASE_SVGS = [None, CASE1_SVG, CASE2_SVG, CASE3_SVG, CASE4_SVG, CASE5_SVG]
 
 
 # --- HTML template ----------------------------------------------------------
@@ -443,7 +481,7 @@ def render_html(lang_code):
     <p><b>{t['lbl_say']}:</b> <code>{t[f'case{i}_say']}</code></p>
     <p><b>{t['lbl_do']}:</b> {md_inline(t[f'case{i}_do'])}</p>
   </div>"""
-        for i in range(1, 5)
+        for i in range(1, 6)
     )
 
     cheat = "\n".join(

@@ -183,7 +183,15 @@ fi
 SID="$(ensure_session)"
 
 XML="$(curl -sf "http://localhost:$PORT/session/$SID/source")"
-if [[ -z "$XML" ]]; then err "Empty source from WDA"; exit 2; fi
+if [[ -z "$XML" ]]; then
+  err "Empty source from WDA. App may have just relaunched or WDA lost the session."
+  err ""
+  err "Fallback: open Appium Inspector (https://github.com/appium/appium-inspector),"
+  err "connect with your usual capabilities, click Refresh Source → Save Source, and drop the XML"
+  err "at ~/.claude/skills/mobile-inspect/snapshots/ios/<page>.xml. The skill is just a wrapper"
+  err "around the same WDA /source endpoint Inspector uses — any XML it saves is interchangeable."
+  exit 2
+fi
 
 # WDA wraps XML in JSON {"value":"<XML...>"}; extract the value field.
 XML="$(echo "$XML" | python3 -c "import json,sys; print(json.load(sys.stdin)['value'])")"

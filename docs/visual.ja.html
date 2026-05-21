@@ -189,6 +189,29 @@
     <p><b>Claude に言う:</b> <code>"POM 生成、/Users/me/Code/my-project に書き出し"</code></p>
     <p><b>スキルがやる:</b> XML を読み、≥2 ページに出る要素を <code>BasePage</code> に集約、ページごとに 1 ファイルをプロジェクトに書き込み(<code>--force</code> なしでは上書きしない)。</p>
   </div>
+  <div class="card">
+    <h3>🛟 ケース5 — dump が失敗したら Appium Inspector でフォールバック</h3>
+    <p><b>状況:</b> ADB がデバイスを認識しない、WDA がクラッシュ、または dump が空の XML を返す — スキルがエラー。</p>
+    <div style="margin:12px 0"><div style="display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap">
+<div style="background:#ffebe9;border:1px solid #cf222e;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ❌ inspect.sh android<br>
+  <span style="color:#cf222e">No device / WDA dead / empty dump</span>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#fff8c5;border:1px solid #d4a72c;border-radius:8px;padding:14px 18px;text-align:center">
+  <div style="font-size:11px;color:#7d4e00;margin-bottom:6px">Use Appium Inspector instead</div>
+  <div style="font-weight:600;font-size:13px">Refresh Source<br>↓<br>Save Source</div>
+</div>
+<div style="font-size:24px">→</div>
+<div style="background:#dafbe1;border:1px solid #1a7f37;border-radius:8px;padding:12px 16px;font-family:ui-monospace,Menlo,monospace;font-size:11px;text-align:left;line-height:1.6">
+  ✅ snapshots/&lt;plat&gt;/<br>
+  &nbsp;&nbsp;home.xml ← from Inspector<br>
+  <span style="color:#1a7f37">--gen-pom works as usual</span>
+</div>
+</div></div>
+    <p><b>Claude に言う:</b> <code>"dump できない、どうすれば?"</code></p>
+    <p><b>スキルがやる:</b> スキルは Appium / UIAutomator2 / XCUITest driver の薄いラッパーで、Appium Inspector と同じ仕組み。[Appium Inspector](https://github.com/appium/appium-inspector) を開き、いつもの capabilities で接続、<strong>Refresh Source</strong> → <strong>Save Source</strong> で XML を取得。<code>~/.claude/skills/mobile-inspect/snapshots/<platform>/<page>.xml</code> に置く。スキルの他のコマンド(<code>--gen-pom</code>、<code>--merge</code>、<code>format-*</code>、<code>suggest-*</code>、<code>elements-summary</code>)はそのまま動く — Inspector とスキルが出す XML は<strong>互換</strong>。</p>
+  </div>
 </div>
 
 <h2>3. ページごとの出力 — 3 ファイル並列</h2>
