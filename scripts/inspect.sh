@@ -5,6 +5,42 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SKILL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# --- First-run welcome banner ----------------------------------------------
+# Printed once per machine (touch marker after first display). Goes to stderr
+# so it never pollutes piped output (e.g. when feeding into format/suggest scripts).
+INSTALLED_MARKER="$SKILL_ROOT/.installed"
+if [[ ! -f "$INSTALLED_MARKER" ]]; then
+  cat >&2 <<BANNER
+
+👋 Welcome to mobile-inspect (first run on this machine)
+
+What it does:
+  Dump UI tree of any Android/iOS app, suggest Appium selectors, auto-crawl the
+  whole app, generate a Page Object library straight into your test project.
+
+Try these first:
+  inspect.sh android                                # full element tree
+  inspect.sh android --enumerate                    # list all tappable elements
+  inspect.sh android --snapshot home                # save 1 page (xml + png + elements.md)
+  inspect.sh android --crawl-app                    # crawl whole app
+  inspect.sh android --gen-pom --template cross-platform-registry --target /your/project
+
+Read more:
+  $SKILL_ROOT/docs/index.html             (5 languages, mermaid diagrams)
+  $SKILL_ROOT/README.md                    (CLI reference)
+
+If dump ever fails (no device / WDA dead / empty XML), the skill is a thin
+wrapper around the same driver Appium Inspector uses — save XML from Inspector
+into snapshots/<platform>/<page>.xml and every other command keeps working.
+
+(This message shows once. Delete $INSTALLED_MARKER to see it again.)
+
+BANNER
+  touch "$INSTALLED_MARKER"
+fi
+
 
 PLATFORM=""
 RAW=0

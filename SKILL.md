@@ -91,6 +91,29 @@ Button [name="BottomNav.Home", label="Home", frame=14,780,71x70]
 Image [name="icon-subtitle-off", label="ImageView", frame=329,275,21x21]
 ```
 
+## First-contact behavior — give a quick intro when the user is new
+
+When the user signals they're new to this skill, **lead with a 3-4 line intro in chat before running any command**. Don't dive straight into `inspect.sh` and let the technical output speak for itself — that's intimidating for first-time users.
+
+**Signals that the user is new:**
+- They just installed the skill ("vừa cài skill", "mới install", "fresh clone").
+- They ask "skill này làm gì?", "how do I use mobile-inspect?", "what does this skill do?".
+- They saw the welcome banner (printed by `inspect.sh` on first run — they may quote it back).
+- It's the first time the skill is triggered in the session AND the user's phrasing is exploratory ("thử dùng skill", "show me how this works") rather than task-focused ("find selector for X").
+
+**What the intro should cover** (keep it tight — 3-4 lines, not a wall of text):
+1. One-line of what the skill actually does for them ("dump UI tree → find selectors / generate Page Object").
+2. The 2-3 commands they'll likely use first (`--enumerate`, `--snapshot`, `--crawl-app`, `--gen-pom`).
+3. Where to read more: `docs/index.html` (5 languages, mermaid diagrams) and `README.md`.
+4. The Inspector fallback in one line (so they know they're not blocked if their device setup isn't ready).
+
+Then go ahead and run the actual command they asked about.
+
+**Don't:**
+- Repeat the intro every turn — once per session is enough.
+- Dump the entire SKILL.md back at them.
+- Skip the intro if the user is clearly experienced (jumped straight to `--gen-pom --target` etc.) — they don't need it.
+
 ## Workflow
 
 1. Detect or ask which platform.

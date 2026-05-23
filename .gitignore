@@ -5,6 +5,7 @@ wda/
 # State files generated at runtime
 *.log
 *.pid
+.installed
 
 # User snapshots (per-app, never commit)
 snapshots/
